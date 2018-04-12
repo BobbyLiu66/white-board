@@ -23,10 +23,10 @@ $(function() {
     var lastTypingTime;
     var $currentInput = $usernameInput.focus();
 
-    var socket = io();
+    const socket = io();
 
     function addParticipantsMessage (data) {
-        var message = '';
+        let message = '';
         if (data.numUsers === 1) {
             message += "there's 1 participant";
         } else {
@@ -48,6 +48,8 @@ $(function() {
 
             // Tell the server your username
             socket.emit('add user', username);
+            //TODO load history message
+
         }
     }
 
@@ -98,6 +100,22 @@ $(function() {
 
         addMessageElement($messageDiv, options);
     }
+
+    //TODO load history
+    function loadChatMessage (data, options) {
+        var $usernameDiv = $('<span class="username"/>')
+            .text(data.username)
+            .css('color', getUsernameColor(data.username));
+        var $messageBodyDiv = $('<span class="messageBody">')
+            .text(data.message);
+
+        var $messageDiv = $('<li class="message"/>')
+            .data('username', data.username)
+            .append($usernameDiv, $messageBodyDiv);
+
+        addMessageElement($messageDiv, options);
+    }
+
 
     // Adds the visual chat typing message
     function addChatTyping (data) {
@@ -229,7 +247,7 @@ $(function() {
     socket.on('login', function (data) {
         connected = true;
         // Display the welcome message
-        var message = "Welcome to Chat – ";
+        const message = "Welcome to Chat – ";
         log(message, {
             prepend: true
         });
@@ -239,6 +257,12 @@ $(function() {
     // Whenever the server emits 'new message', update the chat body
     socket.on('new message', function (data) {
         addChatMessage(data);
+    });
+
+    socket.on('load history',function (data) {
+        _.forEach(data,function (value) {
+            loadChatMessage(value)
+        });
     });
 
     // Whenever the server emits 'user joined', log it in the chat body

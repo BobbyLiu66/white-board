@@ -8,15 +8,7 @@
 <body>
 <div>
     <canvas id="whiteboard"></canvas>
-    <div class="colors">
-        <ul>
-            <li><div class="color black"></div></li>
-            <li><div class="color red"></div></li>
-            <li><div class="color green"></div></li>
-            <li><div class="color blue"></div></li>
-            <li><div class="color yellow"></div></li>
-        </ul>
-    </div>
+
     <div class="chatRoom">
         <ul class="pages">
             <li class="chat page">
@@ -33,11 +25,33 @@
             </li>
         </ul>
     </div>
+
+    <div class="controls">
+        <button id="clear">Clear Area</button>
+        Line width : <select id="selWidth">
+        <option value="1">1</option>
+        <option value="3">3</option>
+        <option value="5" selected="selected">5</option>
+        <option value="7">7</option>
+        <option value="9">9</option>
+        <option value="11">11</option>
+    </select>
+        Color : <select id="selColor">
+        <option value="black">black</option>
+        <option value="blue" selected="selected">blue</option>
+        <option value="red">red</option>
+        <option value="green">green</option>
+        <option value="yellow">yellow</option>
+        <option value="gray">gray</option>
+    </select>
+        <button id="save">Save Area</button>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="javascripts/chatroom.js"></script>
 <script src="javascripts/whiteboard.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js"></script>
 </body>
 </html>

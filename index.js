@@ -15,17 +15,32 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Chatroom
 
-var numUsers = 0;
+let numUsers = 0;
+let messageHistory = [];
 
 io.on('connection', function (socket) {
     //whiteboard
     socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
 
-    var addedUser = false;
+
+
+    //chat room
+    let addedUser = false;
+    //TODO load message history to new user
+    // socket.on('load history',function () {
+    //    socket.broadcast.emit('load history',{
+    //        history:socket.messagegHistory
+    //    })
+    // });
 
     // when the client emits 'new message', this listens and executes
     socket.on('new message', function (data) {
         // we tell the client to execute 'new message'
+        //TODO test
+        messageHistory.push({
+            username: socket.username,
+            message: data
+        });
         socket.broadcast.emit('new message', {
             username: socket.username,
             message: data
@@ -36,7 +51,6 @@ io.on('connection', function (socket) {
     //TODO username unique
     socket.on('add user', function (username) {
         if (addedUser) return;
-
         // we store the username in the socket session for this client
         socket.username = username;
         ++numUsers;
@@ -49,6 +63,8 @@ io.on('connection', function (socket) {
             username: socket.username,
             numUsers: numUsers
         });
+        //TODO test
+        socket.emit('load history',messageHistory);
     });
 
     // when the client emits 'typing', we broadcast it to others

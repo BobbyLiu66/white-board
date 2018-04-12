@@ -3,6 +3,7 @@
 html {
     font-weight: 300;
     -webkit-font-smoothing: antialiased;
+    overflow: hidden;
 }
 
 html, input {
@@ -143,9 +144,9 @@ ul {
 /* Input */
 
 .inputMessage {
-    border: 10px solid #000;
+    border: 10px solid gray;
     bottom: 0;
-    height: 60px;
+    height: 40px;
     left: 0;
     outline: none;
     padding-left: 10px;
@@ -154,25 +155,15 @@ ul {
     width: 100%;
 }
 
-
-/*.whiteboard {*/
-    /*float: left;*/
-    /*width: 75%;*/
-    /*!*left: 5px;*!*/
-    /*!*bottom: 5px;*!*/
-    /*!*top: 5px;*!*/
-    /*!*box-shadow: 0 0 3px #000000;*!*/
-/*}*/
 #whiteboard{
+    margin-top: 5px;
+    margin-left: 5px;
     float: left;
-    width: 75%;
-    /*width: 899px;*/
-    height: 100%;
+    border:2px solid black
 }
 
 .colors {
-    float: left;
-    width: 5%;
+    clear: left;
 }
 
 .color {
@@ -186,3 +177,15 @@ ul {
 .color.green { background-color: green; }
 .color.blue { background-color: blue; }
 .color.yellow { background-color: yellow; }
+
+.controls {
+    position:absolute;
+    bottom:2%;
+    left:0;
+    background-color:#2277dd;
+    padding:5px;
+    margin:2px;
+    color:#fff;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
