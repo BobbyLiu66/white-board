@@ -18,6 +18,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 var numUsers = 0;
 
 io.on('connection', function (socket) {
+    //whiteboard
+    socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
+
     var addedUser = false;
 
     // when the client emits 'new message', this listens and executes
@@ -30,6 +33,7 @@ io.on('connection', function (socket) {
     });
 
     // when the client emits 'add user', this listens and executes
+    //TODO username unique
     socket.on('add user', function (username) {
         if (addedUser) return;
 

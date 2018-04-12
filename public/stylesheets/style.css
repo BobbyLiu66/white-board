@@ -1,9 +1,5 @@
 /* Fix user-agent */
 
-* {
-    box-sizing: border-box;
-}
-
 html {
     font-weight: 300;
     -webkit-font-smoothing: antialiased;
@@ -26,6 +22,16 @@ html, body {
     padding: 0;
 }
 
+.chatRoom {
+    float: left;
+    height: 100%;
+    width: 20%;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+}
+
 ul {
     list-style: none;
     word-wrap: break-word;
@@ -37,13 +43,13 @@ ul {
     height: 100%;
     margin: 0;
     padding: 0;
-    width: 100%;
+    width: 50%;
 }
 
 .page {
     height: 100%;
     position: absolute;
-    width: 100%;
+    width: 20%;
 }
 
 /* Login Page */
@@ -55,11 +61,11 @@ ul {
 .login.page .form {
     height: 100px;
     margin-top: -100px;
-    position: absolute;
+    position: fixed;
 
     text-align: center;
     top: 50%;
-    width: 100%;
+    width: 20%;
 }
 
 .login.page .form .usernameInput {
@@ -147,3 +153,36 @@ ul {
     right: 0;
     width: 100%;
 }
+
+
+/*.whiteboard {*/
+    /*float: left;*/
+    /*width: 75%;*/
+    /*!*left: 5px;*!*/
+    /*!*bottom: 5px;*!*/
+    /*!*top: 5px;*!*/
+    /*!*box-shadow: 0 0 3px #000000;*!*/
+/*}*/
+#whiteboard{
+    float: left;
+    width: 75%;
+    /*width: 899px;*/
+    height: 100%;
+}
+
+.colors {
+    float: left;
+    width: 5%;
+}
+
+.color {
+    height: 24px;
+    width: 24px;
+    margin-top: 2px;
+}
+
+.color.black { background-color: black; }
+.color.red { background-color: red; }
+.color.green { background-color: green; }
+.color.blue { background-color: blue; }
+.color.yellow { background-color: yellow; }

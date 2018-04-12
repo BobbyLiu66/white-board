@@ -2,27 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Socket.IO Chat Example</title>
+    <title>online white board</title>
     <link rel="stylesheet" href="stylesheets/style.css">
 </head>
 <body>
-<ul class="pages">
-    <li class="chat page">
-        <div class="chatArea">
-            <ul class="messages"></ul>
-        </div>
-        <input class="inputMessage" placeholder="Type here..."/>
-    </li>
-    <li class="login page">
-        <div class="form">
-            <h3 class="title">What's your nickname?</h3>
-            <input class="usernameInput" type="text" maxlength="14" />
-        </div>
-    </li>
-</ul>
+<div>
+    <canvas id="whiteboard"></canvas>
+    <div class="colors">
+        <ul>
+            <li><div class="color black"></div></li>
+            <li><div class="color red"></div></li>
+            <li><div class="color green"></div></li>
+            <li><div class="color blue"></div></li>
+            <li><div class="color yellow"></div></li>
+        </ul>
+    </div>
+    <div class="chatRoom">
+        <ul class="pages">
+            <li class="chat page">
+                <div class="chatArea">
+                    <ul class="messages"></ul>
+                </div>
+                <input class="inputMessage" placeholder="Type here..."/>
+            </li>
+            <li class="login page">
+                <div class="form">
+                    <h3 class="title">What's your nickname?</h3>
+                    <input class="usernameInput" type="text" maxlength="14"/>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
 
 <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
-<script src="javascripts/main.js"></script>
+<script src="javascripts/chatroom.js"></script>
+<script src="javascripts/whiteboard.js"></script>
 </body>
 </html>
