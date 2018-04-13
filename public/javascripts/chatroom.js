@@ -59,6 +59,7 @@ $(function () {
         username = cleanInput($usernameInput.val().trim());
 
         // If the username is valid
+        //TODO check username unique
         if (username) {
             $loginPage.fadeOut();
             $chatPage.show();
@@ -79,7 +80,6 @@ $(function () {
             $currentInput = $inputMessage.focus();
 
             // Tell the server your username
-            //TODO get username
             socket.emit('create room', {roomName:roomName,owner:username});
         }
     }
@@ -92,16 +92,17 @@ $(function () {
         // if there is a non-empty message and a socket connection
         if (message && connected) {
             $inputMessage.val('');
-            addChatMessage({
-                username: username,
-                message: message
-            });
+            // addChatMessage({
+            //     username: username,
+            //     message: message
+            // });
             // tell server to execute 'new message' and send along one parameter
             //TODO add room options
             socket.emit('new message', message);
         }
     }
 
+    //TODO display username color
     // Log a message
     function log(message, options) {
         let $el = $('<li>').addClass('log').text(message);
@@ -125,6 +126,8 @@ $(function () {
             .text(data.message);
 
         let typingClass = data.typing ? 'typing' : '';
+        //TODO fix typing
+        console.log("typing "+data.typing);
         let $messageDiv = $('<li class="message"/>')
             .data('username', data.username)
             .addClass(typingClass)
@@ -133,7 +136,6 @@ $(function () {
         addMessageElement($messageDiv, options);
     }
 
-    //TODO load history
     function loadChatMessage(data, options) {
         let $usernameDiv = $('<span class="username"/>')
             .text(data.username)
@@ -239,7 +241,6 @@ $(function () {
     }
 
     // Keyboard events
-
     $window.keydown(function (event) {
         // Auto-focus the current input when a key is typed
         if (!(event.ctrlKey || event.metaKey || event.altKey)) {
@@ -252,6 +253,7 @@ $(function () {
                 socket.emit('stop typing');
                 typing = false;
             }else{
+                //TODO check username unique
                 setUsername();
             }
             if(roomState){
@@ -262,6 +264,7 @@ $(function () {
     });
 
     $inputMessage.on('input', function () {
+        console.log('input');
         updateTyping();
     });
 
@@ -283,28 +286,27 @@ $(function () {
     socket.on('login', function (data) {
         connected = true;
         // Display the welcome message
-        const message = "Welcome to Chat – ";
+        const message = "Welcome to Chat "+data.roomName;
         log(message, {
             prepend: true
         });
         addParticipantsMessage(data);
     });
-
-    //TODO bugs need to be solved
     // Whenever the server emits 'new message', update the chat body
-    // socket.on('new message', function (data) {
-    //     console.log(++i);
-    //     addChatMessage(data);
-    // });
+    socket.on('new message', function (data) {
+        addChatMessage(data);
+    });
 
-    socket.on('load history', function (data,userNum) {
+    socket.on('load history', function (data) {
         _.forEach(data, function (value) {
             loadChatMessage(value)
         });
-        addParticipantsMessage(userNum);
+        log('chat history loaded')
     });
 
     socket.on('create room', function (data) {
+        socket.emit('user left',data);
+        $('.messages > li').remove();
         log(data.roomName + ' created successfully')
     });
 
@@ -316,7 +318,13 @@ $(function () {
 
     // Whenever the server emits 'user left', log it in the chat body
     socket.on('user left', function (data) {
-        log(data.username + ' left');
+        if(data.otherRoom){
+            log(data.username + ' go to other room');
+        }
+        else {
+            log(data.username + ' left');
+        }
+
         addParticipantsMessage(data);
         removeChatTyping(data);
     });

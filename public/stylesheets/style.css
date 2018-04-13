@@ -188,6 +188,18 @@ ul {
     -webkit-border-radius: 3px;
     border-radius: 3px;
 }
+
+.hideDisplay {
+    position:absolute;
+    top:1%;
+    left:1%;
+    padding:5px;
+    margin:2px;
+    color:#fff;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
+
 .chatControls {
     position: absolute;
     top: 2%;

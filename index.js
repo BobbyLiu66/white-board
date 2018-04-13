@@ -17,19 +17,22 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 let numUsers = 0;
 let messageHistory = [];
-//{ room name : {owner:owner,user:[users]}}
 let rooms = {};
+let userName = [];
 
 
 io.on('connection', function (socket) {
     //whiteboard
     socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
-
     //chat room
     let addedUser = false;
-    //TODO
+
     socket.on('create room', function (data) {
-        //TODO { room1: { owner: 'testroo' }, bo: { owner: 'bo' } }
+        io.in(socket.roomName).emit('user left', {
+            username: socket.username,
+            numUsers: numUsers,
+            otherRoom:true
+        });
         rooms[data.roomName] = {owner: data.owner};
         socket.join(data.roomName);
         //TODO multiple rooms
@@ -48,41 +51,35 @@ io.on('connection', function (socket) {
             username: socket.username,
             message: data
         });
-        if(socket.roomName){
-            console.log('rooms in');
-            io.in(socket.roomName).emit('new message', {
-                username: socket.username,
-                message: data
-            })
-        }
-        else {
-            console.log('no rooms');
-            socket.broadcast.emit('new message', {
-                username: socket.username,
-                message: data
-            });
-        }
+
+        io.in(socket.roomName).emit('new message', {
+            username: socket.username,
+            message: data
+        })
     });
 
     // when the client emits 'add user', this listens and executes
-    //TODO username unique
     socket.on('add user', function (username) {
         if (addedUser) return;
         // we store the username in the socket session for this client
         socket.username = username;
+        socket.roomName = "default";
+        socket.join("default");
         ++numUsers;
         addedUser = true;
         socket.emit('login', {
-            numUsers: numUsers
+            numUsers: numUsers,
+            roomName: socket.roomName
         });
-        // echo globally (all clients) that a person has connected
-        //TODO add rooms
-        socket.broadcast.emit('user joined', {
+        //load message history
+        if(messageHistory.length !== 0) {
+            socket.emit('load history', messageHistory, {numUsers: numUsers});
+        }
+
+        socket.broadcast.to(socket.roomName).emit('user joined', {
             username: socket.username,
             numUsers: numUsers
         });
-        //load message history
-        socket.emit('load history', messageHistory,{numUsers:numUsers});
     });
 
     // when the client emits 'typing', we broadcast it to others
@@ -105,7 +102,7 @@ io.on('connection', function (socket) {
             --numUsers;
 
             // echo globally that this client has left
-            socket.broadcast.emit('user left', {
+            io.in(socket.roomName).emit('user left', {
                 username: socket.username,
                 numUsers: numUsers
             });
