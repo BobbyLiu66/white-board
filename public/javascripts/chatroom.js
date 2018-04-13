@@ -1,31 +1,46 @@
 $(function () {
-    var FADE_TIME = 150; // ms
-    var TYPING_TIMER_LENGTH = 400; // ms
-    var COLORS = [
+    let FADE_TIME = 150; // ms
+    let TYPING_TIMER_LENGTH = 400; // ms
+    let COLORS = [
         '#e21400', '#91580f', '#f8a700', '#f78b00',
         '#58dc00', '#287b00', '#a8f07a', '#4ae8c4',
         '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
     ];
 
-    // Initialize variables
-    var $window = $(window);
-    var $usernameInput = $('.usernameInput'); // Input for username
-    var $messages = $('.messages'); // Messages area
-    var $inputMessage = $('.inputMessage'); // Input message input box
+    // Initialize letiables
+    // Prompt for setting a username
+    let username,roomName,roomState;
+    let connected = false;
+    let typing = false;
+    let lastTypingTime;
+    
+    let $window = $(window);
+    let $usernameInput = $('.usernameInput'); // Input for username
+    let $roomnameInput = $('.roomnameInput');
+    let $messages = $('.messages'); // Messages area
+    let $inputMessage = $('.inputMessage'); // Input message input box
+    let $currentInput = $usernameInput.focus();
 
-    var $loginPage = $('.login.page'); // The login page
-    var $chatPage = $('.chat.page'); // The chatroom page
+    let $loginPage = $('.login.page'); // The login page
+    let $chatPage = $('.chat.page'); // The chatroom page
+    $roomnameInput.hide();
+    //events
 
+    //clear message
     $('#clearChat').click(function () {
         $('.messages > li').remove()
     });
 
-    // Prompt for setting a username
-    var username;
-    var connected = false;
-    var typing = false;
-    var lastTypingTime;
-    var $currentInput = $usernameInput.focus();
+    //create room
+    $('#newRoom').click(function () {
+        $('h3.title').text('Input your room name');
+        $usernameInput.hide();
+        $roomnameInput.show();
+        $chatPage.fadeOut();
+        $loginPage.show();
+        $roomnameInput.focus();
+        roomState = true
+    });
 
     const socket = io();
 
@@ -52,13 +67,26 @@ $(function () {
 
             // Tell the server your username
             socket.emit('add user', username);
+        }
+    }
 
+    function setRoomName() {
+        roomName = cleanInput($roomnameInput.val().trim());
+        if (roomName) {
+            $loginPage.fadeOut();
+            $chatPage.show();
+            $loginPage.off('click');
+            $currentInput = $inputMessage.focus();
+
+            // Tell the server your username
+            //TODO get username
+            socket.emit('create room', {roomName:roomName,owner:username});
         }
     }
 
     // Sends a chat message
     function sendMessage() {
-        var message = $inputMessage.val();
+        let message = $inputMessage.val();
         // Prevent markup from being injected into the message
         message = cleanInput(message);
         // if there is a non-empty message and a socket connection
@@ -69,34 +97,35 @@ $(function () {
                 message: message
             });
             // tell server to execute 'new message' and send along one parameter
+            //TODO add room options
             socket.emit('new message', message);
         }
     }
 
     // Log a message
     function log(message, options) {
-        var $el = $('<li>').addClass('log').text(message);
+        let $el = $('<li>').addClass('log').text(message);
         addMessageElement($el, options);
     }
 
     // Adds the visual chat message to the message list
     function addChatMessage(data, options) {
         // Don't fade the message in if there is an 'X was typing'
-        var $typingMessages = getTypingMessages(data);
+        let $typingMessages = getTypingMessages(data);
         options = options || {};
         if ($typingMessages.length !== 0) {
             options.fade = false;
             $typingMessages.remove();
         }
 
-        var $usernameDiv = $('<span class="username"/>')
+        let $usernameDiv = $('<span class="username"/>')
             .text(data.username)
             .css('color', getUsernameColor(data.username));
-        var $messageBodyDiv = $('<span class="messageBody">')
+        let $messageBodyDiv = $('<span class="messageBody">')
             .text(data.message);
 
-        var typingClass = data.typing ? 'typing' : '';
-        var $messageDiv = $('<li class="message"/>')
+        let typingClass = data.typing ? 'typing' : '';
+        let $messageDiv = $('<li class="message"/>')
             .data('username', data.username)
             .addClass(typingClass)
             .append($usernameDiv, $messageBodyDiv);
@@ -106,13 +135,13 @@ $(function () {
 
     //TODO load history
     function loadChatMessage(data, options) {
-        var $usernameDiv = $('<span class="username"/>')
+        let $usernameDiv = $('<span class="username"/>')
             .text(data.username)
             .css('color', getUsernameColor(data.username));
-        var $messageBodyDiv = $('<span class="messageBody">')
+        let $messageBodyDiv = $('<span class="messageBody">')
             .text(data.message);
 
-        var $messageDiv = $('<li class="message"/>')
+        let $messageDiv = $('<li class="message"/>')
             .data('username', data.username)
             .append($usernameDiv, $messageBodyDiv);
 
@@ -140,7 +169,7 @@ $(function () {
     // options.prepend - If the element should prepend
     //   all other messages (default = false)
     function addMessageElement(el, options) {
-        var $el = $(el);
+        let $el = $(el);
 
         // Setup default options
         if (!options) {
@@ -180,8 +209,8 @@ $(function () {
             lastTypingTime = (new Date()).getTime();
 
             setTimeout(function () {
-                var typingTimer = (new Date()).getTime();
-                var timeDiff = typingTimer - lastTypingTime;
+                let typingTimer = (new Date()).getTime();
+                let timeDiff = typingTimer - lastTypingTime;
                 if (timeDiff >= TYPING_TIMER_LENGTH && typing) {
                     socket.emit('stop typing');
                     typing = false;
@@ -200,12 +229,12 @@ $(function () {
     // Gets the color of a username through our hash function
     function getUsernameColor(username) {
         // Compute hash code
-        var hash = 7;
-        for (var i = 0; i < username.length; i++) {
+        let hash = 7;
+        for (let i = 0; i < username.length; i++) {
             hash = username.charCodeAt(i) + (hash << 5) - hash;
         }
         // Calculate color
-        var index = Math.abs(hash % COLORS.length);
+        let index = Math.abs(hash % COLORS.length);
         return COLORS[index];
     }
 
@@ -222,8 +251,12 @@ $(function () {
                 sendMessage();
                 socket.emit('stop typing');
                 typing = false;
-            } else {
+            }else{
                 setUsername();
+            }
+            if(roomState){
+                roomState = false;
+                setRoomName()
             }
         }
     });
@@ -257,10 +290,12 @@ $(function () {
         addParticipantsMessage(data);
     });
 
+    //TODO bugs need to be solved
     // Whenever the server emits 'new message', update the chat body
-    socket.on('new message', function (data) {
-        addChatMessage(data);
-    });
+    // socket.on('new message', function (data) {
+    //     console.log(++i);
+    //     addChatMessage(data);
+    // });
 
     socket.on('load history', function (data,userNum) {
         _.forEach(data, function (value) {
@@ -269,10 +304,7 @@ $(function () {
         addParticipantsMessage(userNum);
     });
 
-    //TODO
     socket.on('create room', function (data) {
-        //TODO clear chat space
-        // $messages.removeChild($messages);
         log(data.roomName + ' created successfully')
     });
 

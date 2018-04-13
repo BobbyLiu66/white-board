@@ -29,9 +29,13 @@ io.on('connection', function (socket) {
     let addedUser = false;
     //TODO
     socket.on('create room', function (data) {
+        //TODO { room1: { owner: 'testroo' }, bo: { owner: 'bo' } }
         rooms[data.roomName] = {owner: data.owner};
         socket.join(data.roomName);
-        socket.to(data.roomName).boardcast.emit('create room', {
+        //TODO multiple rooms
+        socket.roomName = data.roomName;
+
+        io.in(socket.roomName).emit('create room', {
             roomName: data.roomName,
             owner: data.owner
         });
@@ -40,15 +44,24 @@ io.on('connection', function (socket) {
     // when the client emits 'new message', this listens and executes
     socket.on('new message', function (data) {
         // we tell the client to execute 'new message'
-        //TODO test
         messageHistory.push({
             username: socket.username,
             message: data
         });
-        socket.broadcast.emit('new message', {
-            username: socket.username,
-            message: data
-        });
+        if(socket.roomName){
+            console.log('rooms in');
+            io.in(socket.roomName).emit('new message', {
+                username: socket.username,
+                message: data
+            })
+        }
+        else {
+            console.log('no rooms');
+            socket.broadcast.emit('new message', {
+                username: socket.username,
+                message: data
+            });
+        }
     });
 
     // when the client emits 'add user', this listens and executes
@@ -63,11 +76,12 @@ io.on('connection', function (socket) {
             numUsers: numUsers
         });
         // echo globally (all clients) that a person has connected
+        //TODO add rooms
         socket.broadcast.emit('user joined', {
             username: socket.username,
             numUsers: numUsers
         });
-        //TODO test
+        //load message history
         socket.emit('load history', messageHistory,{numUsers:numUsers});
     });
 
