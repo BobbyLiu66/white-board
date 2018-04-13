@@ -24,9 +24,9 @@ html, body {
 }
 
 .chatRoom {
-    float: left;
+    float: right;
     height: 100%;
-    width: 20%;
+    width: 22%;
     left: 0;
     right: 0;
     bottom: 0;
@@ -50,7 +50,7 @@ ul {
 .page {
     height: 100%;
     position: absolute;
-    width: 20%;
+    width: 22%;
 }
 
 /* Login Page */
@@ -66,7 +66,7 @@ ul {
 
     text-align: center;
     top: 50%;
-    width: 20%;
+    width: 22%;
 }
 
 .login.page .form .usernameInput {
@@ -80,11 +80,11 @@ ul {
 }
 
 .login.page .title {
-    font-size: 200%;
+    font-size: 150%;
 }
 
 .login.page .usernameInput {
-    font-size: 200%;
+    font-size: 150%;
     letter-spacing: 3px;
 }
 
@@ -124,7 +124,7 @@ ul {
 }
 
 .messages {
-    height: 100%;
+    height: 88%;
     margin: 0;
     overflow-y: scroll;
     padding: 10px 20px 10px 20px;
@@ -156,8 +156,7 @@ ul {
 }
 
 #whiteboard{
-    margin-top: 5px;
-    margin-left: 5px;
+    margin: 1% 1% 1% 1%;
     float: left;
     border:2px solid black
 }
@@ -180,8 +179,19 @@ ul {
 
 .controls {
     position:absolute;
-    bottom:2%;
-    left:0;
+    bottom:1%;
+    left:1%;
+    background-color:#2277dd;
+    padding:5px;
+    margin:2px;
+    color:#fff;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
+.chatControls {
+    position: absolute;
+    top: 2%;
+    right: 2%;
     background-color:#2277dd;
     padding:5px;
     margin:2px;

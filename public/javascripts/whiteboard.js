@@ -90,8 +90,8 @@ $(function () {
 
     // make the canvas fill its parent
     function onResize() {
-        canvas.width = (window.innerWidth) * 0.75;
-        canvas.height = window.innerHeight * 0.9;
+        canvas.width = window.innerWidth * 0.75;
+        canvas.height = window.innerHeight;
     }
 
     function clearArea() {

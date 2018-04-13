@@ -1,4 +1,4 @@
-$(function() {
+$(function () {
     var FADE_TIME = 150; // ms
     var TYPING_TIMER_LENGTH = 400; // ms
     var COLORS = [
@@ -16,6 +16,10 @@ $(function() {
     var $loginPage = $('.login.page'); // The login page
     var $chatPage = $('.chat.page'); // The chatroom page
 
+    $('#clearChat').click(function () {
+        $('.messages > li').remove()
+    });
+
     // Prompt for setting a username
     var username;
     var connected = false;
@@ -25,7 +29,7 @@ $(function() {
 
     const socket = io();
 
-    function addParticipantsMessage (data) {
+    function addParticipantsMessage(data) {
         let message = '';
         if (data.numUsers === 1) {
             message += "there's 1 participant";
@@ -36,7 +40,7 @@ $(function() {
     }
 
     // Sets the client's username
-    function setUsername () {
+    function setUsername() {
         username = cleanInput($usernameInput.val().trim());
 
         // If the username is valid
@@ -48,13 +52,12 @@ $(function() {
 
             // Tell the server your username
             socket.emit('add user', username);
-            //TODO load history message
 
         }
     }
 
     // Sends a chat message
-    function sendMessage () {
+    function sendMessage() {
         var message = $inputMessage.val();
         // Prevent markup from being injected into the message
         message = cleanInput(message);
@@ -71,13 +74,13 @@ $(function() {
     }
 
     // Log a message
-    function log (message, options) {
+    function log(message, options) {
         var $el = $('<li>').addClass('log').text(message);
         addMessageElement($el, options);
     }
 
     // Adds the visual chat message to the message list
-    function addChatMessage (data, options) {
+    function addChatMessage(data, options) {
         // Don't fade the message in if there is an 'X was typing'
         var $typingMessages = getTypingMessages(data);
         options = options || {};
@@ -102,7 +105,7 @@ $(function() {
     }
 
     //TODO load history
-    function loadChatMessage (data, options) {
+    function loadChatMessage(data, options) {
         var $usernameDiv = $('<span class="username"/>')
             .text(data.username)
             .css('color', getUsernameColor(data.username));
@@ -118,14 +121,14 @@ $(function() {
 
 
     // Adds the visual chat typing message
-    function addChatTyping (data) {
+    function addChatTyping(data) {
         data.typing = true;
         data.message = 'is typing';
         addChatMessage(data);
     }
 
     // Removes the visual chat typing message
-    function removeChatTyping (data) {
+    function removeChatTyping(data) {
         getTypingMessages(data).fadeOut(function () {
             $(this).remove();
         });
@@ -136,7 +139,7 @@ $(function() {
     // options.fade - If the element should fade-in (default = true)
     // options.prepend - If the element should prepend
     //   all other messages (default = false)
-    function addMessageElement (el, options) {
+    function addMessageElement(el, options) {
         var $el = $(el);
 
         // Setup default options
@@ -163,12 +166,12 @@ $(function() {
     }
 
     // Prevents input from having injected markup
-    function cleanInput (input) {
+    function cleanInput(input) {
         return $('<div/>').text(input).html();
     }
 
     // Updates the typing event
-    function updateTyping () {
+    function updateTyping() {
         if (connected) {
             if (!typing) {
                 typing = true;
@@ -188,14 +191,14 @@ $(function() {
     }
 
     // Gets the 'X is typing' messages of a user
-    function getTypingMessages (data) {
+    function getTypingMessages(data) {
         return $('.typing.message').filter(function (i) {
             return $(this).data('username') === data.username;
         });
     }
 
     // Gets the color of a username through our hash function
-    function getUsernameColor (username) {
+    function getUsernameColor(username) {
         // Compute hash code
         var hash = 7;
         for (var i = 0; i < username.length; i++) {
@@ -225,7 +228,7 @@ $(function() {
         }
     });
 
-    $inputMessage.on('input', function() {
+    $inputMessage.on('input', function () {
         updateTyping();
     });
 
@@ -259,10 +262,18 @@ $(function() {
         addChatMessage(data);
     });
 
-    socket.on('load history',function (data) {
-        _.forEach(data,function (value) {
+    socket.on('load history', function (data,userNum) {
+        _.forEach(data, function (value) {
             loadChatMessage(value)
         });
+        addParticipantsMessage(userNum);
+    });
+
+    //TODO
+    socket.on('create room', function (data) {
+        //TODO clear chat space
+        // $messages.removeChild($messages);
+        log(data.roomName + ' created successfully')
     });
 
     // Whenever the server emits 'user joined', log it in the chat body

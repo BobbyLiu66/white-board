@@ -17,21 +17,25 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 let numUsers = 0;
 let messageHistory = [];
+//{ room name : {owner:owner,user:[users]}}
+let rooms = {};
+
 
 io.on('connection', function (socket) {
     //whiteboard
     socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
 
-
-
     //chat room
     let addedUser = false;
-    //TODO load message history to new user
-    // socket.on('load history',function () {
-    //    socket.broadcast.emit('load history',{
-    //        history:socket.messagegHistory
-    //    })
-    // });
+    //TODO
+    socket.on('create room', function (data) {
+        rooms[data.roomName] = {owner: data.owner};
+        socket.join(data.roomName);
+        socket.to(data.roomName).boardcast.emit('create room', {
+            roomName: data.roomName,
+            owner: data.owner
+        });
+    });
 
     // when the client emits 'new message', this listens and executes
     socket.on('new message', function (data) {
@@ -64,7 +68,7 @@ io.on('connection', function (socket) {
             numUsers: numUsers
         });
         //TODO test
-        socket.emit('load history',messageHistory);
+        socket.emit('load history', messageHistory,{numUsers:numUsers});
     });
 
     // when the client emits 'typing', we broadcast it to others
