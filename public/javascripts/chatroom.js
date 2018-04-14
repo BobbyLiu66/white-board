@@ -28,14 +28,14 @@ $(function () {
     $roomnameInput.hide();
     $inviteFriend.hide();
     //events
-    if (window.sessionStorage.username){
+    if (window.sessionStorage.username) {
         $loginPage.hide();
         $chatPage.show();
         $loginPage.off('click');
         $currentInput = $inputMessage.focus();
         username = window.sessionStorage.username;
         connected = true;
-        socket.emit('add user',username,window.sessionStorage.roomName)
+        socket.emit('add user', username, window.sessionStorage.roomName)
     }
 
     //clear message
@@ -339,10 +339,10 @@ $(function () {
     });
     // Whenever the server emits 'new message', update the chat body
     socket.on('new message', function (data) {
-        let now =(new Date()).getMinutes();
-        if(now !== dateTime){
+        let now = (new Date()).getMinutes();
+        if (now !== dateTime) {
             dateTime = now;
-            log((new Date()).getHours()+":"+(new Date()).getMinutes());
+            log((new Date()).getHours() + ":" + (new Date()).getMinutes());
         }
         addChatMessage(data);
     });
@@ -351,11 +351,9 @@ $(function () {
         log(data.username + ' decline to join your room')
     });
 
-    socket.on('load history', function (data, roomName) {
+    socket.on('load history', function (data) {
         _.forEach(data, function (value) {
-            if (value.roomName === roomName) {
-                loadChatMessage(value)
-            }
+            loadChatMessage(value)
         });
         log('chat history loaded')
     });
@@ -373,8 +371,8 @@ $(function () {
 
     // Whenever the server emits 'user joined', log it in the chat body
     socket.on('user joined', function (data) {
-        if(data.roomName){
-            log(data.username + ' joined to room: '+data.roomName);
+        if (data.roomName) {
+            log(data.username + ' joined to room: ' + data.roomName);
         }
         else {
             log(data.username + ' joined');

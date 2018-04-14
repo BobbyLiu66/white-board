@@ -5,6 +5,7 @@ let path = require('path');
 let server = require('http').createServer(app);
 const io = require('socket.io')(server);
 let port = process.env.PORT || 3000;
+let _ = require('lodash');
 
 server.listen(port, function () {
     console.log('Server listening at port %d', port);
@@ -68,7 +69,10 @@ io.on('connection', function (socket) {
         });
         //load message history
         if (messageHistory.length !== 0) {
-            socket.emit('load history', messageHistory, socket.roomName);
+            let sendHistory = _.filter(messageHistory,function (value) {
+                return value.roomName === socket.roomName
+            });
+            socket.emit('load history', sendHistory);
         }
 
         socket.broadcast.to(socket.roomName).emit('user joined', {
