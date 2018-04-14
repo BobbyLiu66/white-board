@@ -1,4 +1,5 @@
 $(function () {
+    const socket = io();
     let FADE_TIME = 150; // ms
     let TYPING_TIMER_LENGTH = 400; // ms
     let COLORS = [
@@ -6,10 +7,9 @@ $(function () {
         '#58dc00', '#287b00', '#a8f07a', '#4ae8c4',
         '#3b88eb', '#3824aa', '#a700ff', '#d300e7'
     ];
-
     // Initialize letiables
     // Prompt for setting a username
-    let username,roomName,roomState;
+    let username,roomName,roomState,friendState;
     let connected = false;
     let typing = false;
     let lastTypingTime;
@@ -17,6 +17,7 @@ $(function () {
     let $window = $(window);
     let $usernameInput = $('.usernameInput'); // Input for username
     let $roomnameInput = $('.roomnameInput');
+    let $inviteFriend = $('.inviteInput');
     let $messages = $('.messages'); // Messages area
     let $inputMessage = $('.inputMessage'); // Input message input box
     let $currentInput = $usernameInput.focus();
@@ -24,6 +25,7 @@ $(function () {
     let $loginPage = $('.login.page'); // The login page
     let $chatPage = $('.chat.page'); // The chatroom page
     $roomnameInput.hide();
+    $inviteFriend.hide();
     //events
 
     //clear message
@@ -35,6 +37,7 @@ $(function () {
     $('#newRoom').click(function () {
         $('h3.title').text('Input your room name');
         $usernameInput.hide();
+        $inviteFriend.hide();
         $roomnameInput.show();
         $chatPage.fadeOut();
         $loginPage.show();
@@ -42,7 +45,17 @@ $(function () {
         roomState = true
     });
 
-    const socket = io();
+    //invite friend
+    $('#invite').click(function () {
+        $('h3.title').text('Input your friend name');
+        $usernameInput.hide();
+        $roomnameInput.hide();
+        $inviteFriend.show();
+        $chatPage.fadeOut();
+        $loginPage.show();
+        $inviteFriend.focus();
+        friendState = true
+    });
 
     function addParticipantsMessage(data) {
         let message = '';
@@ -70,17 +83,28 @@ $(function () {
             socket.emit('add user', username);
         }
     }
-
+    // Sets the room's name
     function setRoomName() {
         roomName = cleanInput($roomnameInput.val().trim());
         if (roomName) {
             $loginPage.fadeOut();
             $chatPage.show();
             $loginPage.off('click');
-            $currentInput = $inputMessage.focus();
-
-            // Tell the server your username
+            // Tell the server your username and roomName
             socket.emit('create room', {roomName:roomName,owner:username});
+        }
+    }
+
+    function sendInviteMessage() {
+        inviteFriend = cleanInput($inviteFriend.val().trim());
+        if (inviteFriend) {
+            $loginPage.fadeOut();
+            $chatPage.show();
+            $loginPage.off('click');
+            // Tell the server your username
+            //TODO invite owner's name
+            socket.emit('invite user', {inviteName:inviteFriend,username:username});
+            //TODO log
         }
     }
 
@@ -136,6 +160,7 @@ $(function () {
         addMessageElement($messageDiv, options);
     }
 
+    //load chat history message
     function loadChatMessage(data, options) {
         let $usernameDiv = $('<span class="username"/>')
             .text(data.username)
@@ -149,7 +174,6 @@ $(function () {
 
         addMessageElement($messageDiv, options);
     }
-
 
     // Adds the visual chat typing message
     function addChatTyping(data) {
@@ -243,9 +267,9 @@ $(function () {
     // Keyboard events
     $window.keydown(function (event) {
         // Auto-focus the current input when a key is typed
-        if (!(event.ctrlKey || event.metaKey || event.altKey)) {
-            $currentInput.focus();
-        }
+        // if (!(event.ctrlKey || event.metaKey || event.altKey)) {
+        //     $currentInput.focus();
+        // }
         // When the client hits ENTER on their keyboard
         if (event.which === 13) {
             if (username) {
@@ -257,14 +281,20 @@ $(function () {
                 setUsername();
             }
             if(roomState){
+                console.log('roomState '+ roomState);
                 roomState = false;
                 setRoomName()
+            }
+            if(friendState){
+                console.log('friendState '+ friendState);
+                friendState = false;
+                sendInviteMessage()
+                //TODO
             }
         }
     });
 
     $inputMessage.on('input', function () {
-        console.log('input');
         updateTyping();
     });
 
@@ -308,6 +338,10 @@ $(function () {
         socket.emit('user left',data);
         $('.messages > li').remove();
         log(data.roomName + ' created successfully')
+    });
+
+    socket.on('invite user',function (data) {
+       log(data.username + ' invite you to join room '+data.roomName)
     });
 
     // Whenever the server emits 'user joined', log it in the chat body

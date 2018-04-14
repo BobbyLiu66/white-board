@@ -18,15 +18,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 let numUsers = 0;
 let messageHistory = [];
 let rooms = {};
-let userName = [];
-
+let users = {};
 
 io.on('connection', function (socket) {
     //whiteboard
     socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
     //chat room
     let addedUser = false;
-
     socket.on('create room', function (data) {
         io.in(socket.roomName).emit('user left', {
             username: socket.username,
@@ -35,6 +33,8 @@ io.on('connection', function (socket) {
         });
         rooms[data.roomName] = {owner: data.owner};
         socket.join(data.roomName);
+        //TODO send directly to the active room instead of leave it
+        socket.leave(socket.roomName);
         //TODO multiple rooms
         socket.roomName = data.roomName;
 
@@ -51,7 +51,8 @@ io.on('connection', function (socket) {
             username: socket.username,
             message: data
         });
-
+        //TODO bugs default could send message to private room
+        console.log(socket.roomName);
         io.in(socket.roomName).emit('new message', {
             username: socket.username,
             message: data
@@ -62,6 +63,8 @@ io.on('connection', function (socket) {
     socket.on('add user', function (username) {
         if (addedUser) return;
         // we store the username in the socket session for this client
+        //TODO save this into redis or just mongoDB?
+        users[username] = socket.id;
         socket.username = username;
         socket.roomName = "default";
         socket.join("default");
@@ -82,6 +85,27 @@ io.on('connection', function (socket) {
         });
     });
 
+    //invite other user to this room
+    socket.on('invite user',function (data) {
+        io.in(users[data.inviteName]).emit('invite user', {
+            //TODO username wrong
+            username: data.username,
+            roomName: socket.roomName
+        })
+    });
+    
+    socket.on('accept invite',function (data) {
+        io.in(socket.roomName).emit('user left', {
+            username: socket.username,
+            numUsers: numUsers,
+            otherRoom:true
+        });
+        rooms[data.roomName] = {user: data.owner};
+        socket.join(data.roomName);
+        //TODO multiple rooms
+        socket.roomName = data.roomName;
+    });
+    
     // when the client emits 'typing', we broadcast it to others
     socket.on('typing', function () {
         socket.broadcast.emit('typing', {
