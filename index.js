@@ -60,7 +60,6 @@ io.on('connection', function (socket) {
         //TODO save this into redis or just mongoDB?
         users[username] = socket.id;
         socket.username = username;
-        //TODO is this parameter needed ?
         socket.roomName = roomName ? roomName : "default";
         socket.join(socket.roomName);
         addedUser = true;

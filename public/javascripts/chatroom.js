@@ -13,6 +13,7 @@ $(function () {
     let connected = false;
     let typing = false;
     let lastTypingTime;
+    let dateTime;
 
     let $window = $(window);
     let $usernameInput = $('.usernameInput'); // Input for username
@@ -117,7 +118,6 @@ $(function () {
         if (message && connected) {
             $inputMessage.val('');
             // tell server to execute 'new message' and send along one parameter
-            //TODO bugs need to be solved
             socket.emit('new message', message);
         }
     }
@@ -172,7 +172,6 @@ $(function () {
             .text(data.message);
 
         let typingClass = data.typing ? 'typing' : '';
-        //TODO fix typing to each room
         let $messageDiv = $('<li class="message"/>')
             .data('username', data.username)
             .addClass(typingClass)
@@ -340,8 +339,11 @@ $(function () {
     });
     // Whenever the server emits 'new message', update the chat body
     socket.on('new message', function (data) {
-        //TODO bugs
-        console.log(data);
+        let now =(new Date()).getMinutes();
+        if(now !== dateTime){
+            dateTime = now;
+            log((new Date()).getHours()+":"+(new Date()).getMinutes());
+        }
         addChatMessage(data);
     });
 
