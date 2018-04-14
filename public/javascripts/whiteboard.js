@@ -13,6 +13,14 @@ $(function () {
     let drawing = false;
     let $hidden = $('#hidden');
 
+    $('#whiteboard').hide();
+    $('.controls').hide();
+    $hidden.prop('value','display');
+    $hidden.html('Display Whiteboard');
+    $('.login.page .form').css("width","100%");
+    $('.page').css("width","100%");
+    $('.chatRoom').css("width","100%");
+
     //Hidden display canvas
     $hidden.click(function () {
         if($hidden.val() === 'hide'){

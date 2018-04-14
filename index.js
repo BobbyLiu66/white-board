@@ -15,7 +15,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Chatroom
 
-let numUsers = 0;
 let messageHistory = [];
 let rooms = {};
 let users = {};
@@ -28,14 +27,11 @@ io.on('connection', function (socket) {
     socket.on('create room', function (data) {
         io.in(socket.roomName).emit('user left', {
             username: socket.username,
-            numUsers: numUsers,
-            otherRoom:true
+            otherRoom: true
         });
         rooms[data.roomName] = {owner: data.owner};
         socket.join(data.roomName);
-        //TODO send directly to the active room instead of leave it
         socket.leave(socket.roomName);
-        //TODO multiple rooms
         socket.roomName = data.roomName;
 
         io.in(socket.roomName).emit('create room', {
@@ -49,10 +45,9 @@ io.on('connection', function (socket) {
         // we tell the client to execute 'new message'
         messageHistory.push({
             username: socket.username,
-            message: data
+            message: data,
+            roomName: socket.roomName
         });
-        //TODO bugs default could send message to private room
-        console.log(socket.roomName);
         io.in(socket.roomName).emit('new message', {
             username: socket.username,
             message: data
@@ -68,54 +63,63 @@ io.on('connection', function (socket) {
         socket.username = username;
         socket.roomName = "default";
         socket.join("default");
-        ++numUsers;
         addedUser = true;
         socket.emit('login', {
-            numUsers: numUsers,
             roomName: socket.roomName
         });
         //load message history
-        if(messageHistory.length !== 0) {
-            socket.emit('load history', messageHistory, {numUsers: numUsers});
+        if (messageHistory.length !== 0) {
+            socket.emit('load history', messageHistory, socket.roomName);
         }
 
         socket.broadcast.to(socket.roomName).emit('user joined', {
             username: socket.username,
-            numUsers: numUsers
         });
+        socket.emit('user joined', {
+            username: "you",
+            roomName: socket.roomName
+        })
     });
 
     //invite other user to this room
-    socket.on('invite user',function (data) {
+    socket.on('invite user', function (data) {
         io.in(users[data.inviteName]).emit('invite user', {
-            //TODO username wrong
             username: data.username,
             roomName: socket.roomName
         })
     });
-    
-    socket.on('accept invite',function (data) {
-        io.in(socket.roomName).emit('user left', {
-            username: socket.username,
-            numUsers: numUsers,
-            otherRoom:true
-        });
-        rooms[data.roomName] = {user: data.owner};
+
+    socket.on('accept invite', function (data) {
+        socket.leave(socket.roomName);
+        rooms[data.roomName] = {user: data.username};
         socket.join(data.roomName);
-        //TODO multiple rooms
         socket.roomName = data.roomName;
+        socket.broadcast.to(socket.roomName).emit('user joined', {
+            username: socket.username,
+        });
+        socket.emit('user joined', {
+            username: "you",
+            roomName: data.roomName
+        })
     });
-    
+
+
+    socket.on('decline invite', function (data) {
+        socket.broadcast.to(users[data.username]).emit('decline invite', {
+            username: data.inviteUser
+        });
+    });
+
     // when the client emits 'typing', we broadcast it to others
     socket.on('typing', function () {
-        socket.broadcast.emit('typing', {
+        socket.broadcast.to(socket.roomName).emit('typing', {
             username: socket.username
         });
     });
 
     // when the client emits 'stop typing', we broadcast it to others
     socket.on('stop typing', function () {
-        socket.broadcast.emit('stop typing', {
+        socket.broadcast.to(socket.roomName).emit('stop typing', {
             username: socket.username
         });
     });
@@ -123,12 +127,9 @@ io.on('connection', function (socket) {
     // when the user disconnects.. perform this
     socket.on('disconnect', function () {
         if (addedUser) {
-            --numUsers;
-
             // echo globally that this client has left
             io.in(socket.roomName).emit('user left', {
                 username: socket.username,
-                numUsers: numUsers
             });
         }
     });

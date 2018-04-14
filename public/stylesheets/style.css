@@ -7,14 +7,13 @@ html {
 }
 
 html, input {
-    font-family:
-            "HelveticaNeue-Light",
-            "Helvetica Neue Light",
-            "Helvetica Neue",
-            Helvetica,
-            Arial,
-            "Lucida Grande",
-            sans-serif;
+    font-family: "HelveticaNeue-Light",
+    "Helvetica Neue Light",
+    "Helvetica Neue",
+    Helvetica,
+    Arial,
+    "Lucida Grande",
+    sans-serif;
 }
 
 html, body {
@@ -69,7 +68,7 @@ ul {
     width: 22%;
 }
 
-.login.page .form .usernameInput, .login.page .form .roomnameInput {
+.login.page .form .usernameInput, .login.page .form .roomnameInput, .login.page .form .inviteInput {
     background-color: transparent;
     border: none;
     border-bottom: 2px solid #fff;
@@ -83,12 +82,12 @@ ul {
     font-size: 150%;
 }
 
-.login.page .usernameInput, .login.page .roomnameInput {
+.login.page .usernameInput, .login.page .roomnameInput, .login.page .inviteInput {
     font-size: 150%;
     letter-spacing: 3px;
 }
 
-.login.page .title, .login.page .usernameInput,.login.page .title, .login.page .roomnameInput {
+.login.page .title, .login.page .usernameInput, .login.page .title, .login.page .roomnameInput, .login.page .title, .login.page .inviteInput {
     color: #fff;
     font-weight: 100;
 }
@@ -155,10 +154,10 @@ ul {
     width: 100%;
 }
 
-#whiteboard{
+#whiteboard {
     margin: 1% 1% 1% 1%;
     float: left;
-    border:2px solid black
+    border: 2px solid black
 }
 
 .colors {
@@ -171,31 +170,45 @@ ul {
     margin-top: 2px;
 }
 
-.color.black { background-color: black; }
-.color.red { background-color: red; }
-.color.green { background-color: green; }
-.color.blue { background-color: blue; }
-.color.yellow { background-color: yellow; }
+.color.black {
+    background-color: black;
+}
+
+.color.red {
+    background-color: red;
+}
+
+.color.green {
+    background-color: green;
+}
+
+.color.blue {
+    background-color: blue;
+}
+
+.color.yellow {
+    background-color: yellow;
+}
 
 .controls {
-    position:absolute;
-    bottom:1%;
-    left:1%;
-    background-color:#2277dd;
-    padding:5px;
-    margin:2px;
-    color:#fff;
+    position: absolute;
+    bottom: 1%;
+    left: 1%;
+    background-color: #2277dd;
+    padding: 5px;
+    margin: 2px;
+    color: #fff;
     -webkit-border-radius: 3px;
     border-radius: 3px;
 }
 
 .hideDisplay {
-    position:absolute;
-    top:1%;
-    left:1%;
-    padding:5px;
-    margin:2px;
-    color:#fff;
+    position: absolute;
+    top: 1%;
+    left: 1%;
+    padding: 5px;
+    margin: 2px;
+    color: #fff;
     -webkit-border-radius: 3px;
     border-radius: 3px;
 }
@@ -204,10 +217,10 @@ ul {
     position: absolute;
     top: 2%;
     right: 2%;
-    background-color:#2277dd;
-    padding:5px;
-    margin:2px;
-    color:#fff;
+    background-color: #2277dd;
+    padding: 5px;
+    margin: 2px;
+    color: #fff;
     -webkit-border-radius: 3px;
     border-radius: 3px;
 }

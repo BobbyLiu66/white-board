@@ -9,11 +9,11 @@ $(function () {
     ];
     // Initialize letiables
     // Prompt for setting a username
-    let username,roomName,roomState,friendState;
+    let username, roomName, inviteFriend, roomState, friendState;
     let connected = false;
     let typing = false;
     let lastTypingTime;
-    
+
     let $window = $(window);
     let $usernameInput = $('.usernameInput'); // Input for username
     let $roomnameInput = $('.roomnameInput');
@@ -57,16 +57,6 @@ $(function () {
         friendState = true
     });
 
-    function addParticipantsMessage(data) {
-        let message = '';
-        if (data.numUsers === 1) {
-            message += "there's 1 participant";
-        } else {
-            message += "there are " + data.numUsers + " participants";
-        }
-        log(message);
-    }
-
     // Sets the client's username
     function setUsername() {
         username = cleanInput($usernameInput.val().trim());
@@ -83,6 +73,7 @@ $(function () {
             socket.emit('add user', username);
         }
     }
+
     // Sets the room's name
     function setRoomName() {
         roomName = cleanInput($roomnameInput.val().trim());
@@ -91,7 +82,7 @@ $(function () {
             $chatPage.show();
             $loginPage.off('click');
             // Tell the server your username and roomName
-            socket.emit('create room', {roomName:roomName,owner:username});
+            socket.emit('create room', {roomName: roomName, owner: username});
         }
     }
 
@@ -101,10 +92,7 @@ $(function () {
             $loginPage.fadeOut();
             $chatPage.show();
             $loginPage.off('click');
-            // Tell the server your username
-            //TODO invite owner's name
-            socket.emit('invite user', {inviteName:inviteFriend,username:username});
-            //TODO log
+            socket.emit('invite user', {inviteName: inviteFriend, username: username});
         }
     }
 
@@ -116,21 +104,43 @@ $(function () {
         // if there is a non-empty message and a socket connection
         if (message && connected) {
             $inputMessage.val('');
-            // addChatMessage({
-            //     username: username,
-            //     message: message
-            // });
             // tell server to execute 'new message' and send along one parameter
-            //TODO add room options
             socket.emit('new message', message);
         }
     }
 
-    //TODO display username color
     // Log a message
     function log(message, options) {
         let $el = $('<li>').addClass('log').text(message);
         addMessageElement($el, options);
+    }
+
+    function logWithStyle(message, options) {
+
+        let $usernameDiv = $('<span/>')
+            .text(options.username)
+            .css('color', getUsernameColor(options.username));
+        let $accept = $('<button class="acceptOrDecline"/>')
+            .text("accept").click(function () {
+                socket.emit('accept invite', {
+                    roomName: options.roomName,
+                    username: username
+                });
+                $(this).parent().children('button').attr("disabled", true)
+            });
+        let $decline = $('<button class="acceptOrDecline"/>')
+            .text("decline").click(function () {
+                socket.emit('decline invite', {
+                    roomName: options.roomName,
+                    username: options.username,
+                    inviteUser: username
+                });
+                $(this).parent().children('button').attr("disabled", true)
+            });
+
+        let $messageDiv = $('<li class="log"/>')
+            .append($usernameDiv, message + options.roomName + " ", $accept, " or ", $decline);
+        addMessageElement($messageDiv);
     }
 
     // Adds the visual chat message to the message list
@@ -150,8 +160,7 @@ $(function () {
             .text(data.message);
 
         let typingClass = data.typing ? 'typing' : '';
-        //TODO fix typing
-        console.log("typing "+data.typing);
+        //TODO fix typing to each room
         let $messageDiv = $('<li class="message"/>')
             .data('username', data.username)
             .addClass(typingClass)
@@ -266,30 +275,26 @@ $(function () {
 
     // Keyboard events
     $window.keydown(function (event) {
-        // Auto-focus the current input when a key is typed
-        // if (!(event.ctrlKey || event.metaKey || event.altKey)) {
-        //     $currentInput.focus();
-        // }
         // When the client hits ENTER on their keyboard
         if (event.which === 13) {
             if (username) {
                 sendMessage();
                 socket.emit('stop typing');
                 typing = false;
-            }else{
+            } else {
                 //TODO check username unique
                 setUsername();
+                $usernameInput.val('')
             }
-            if(roomState){
-                console.log('roomState '+ roomState);
+            if (roomState) {
                 roomState = false;
-                setRoomName()
+                setRoomName();
+                $roomnameInput.val('')
             }
-            if(friendState){
-                console.log('friendState '+ friendState);
+            if (friendState) {
                 friendState = false;
-                sendInviteMessage()
-                //TODO
+                sendInviteMessage();
+                $inviteFriend.val('')
             }
         }
     });
@@ -316,50 +321,59 @@ $(function () {
     socket.on('login', function (data) {
         connected = true;
         // Display the welcome message
-        const message = "Welcome to Chat "+data.roomName;
+        const message = "Welcome to Chat " + data.roomName;
         log(message, {
             prepend: true
         });
-        addParticipantsMessage(data);
     });
     // Whenever the server emits 'new message', update the chat body
     socket.on('new message', function (data) {
         addChatMessage(data);
     });
 
-    socket.on('load history', function (data) {
+    socket.on('decline invite', function (data) {
+        log(data.username + ' decline to join your room')
+    });
+
+    socket.on('load history', function (data, roomName) {
         _.forEach(data, function (value) {
-            loadChatMessage(value)
+            if (value.roomName === roomName) {
+                loadChatMessage(value)
+            }
         });
         log('chat history loaded')
     });
 
     socket.on('create room', function (data) {
-        socket.emit('user left',data);
+        socket.emit('user left', data);
         $('.messages > li').remove();
         log(data.roomName + ' created successfully')
     });
 
-    socket.on('invite user',function (data) {
-       log(data.username + ' invite you to join room '+data.roomName)
+    //TODO test
+    socket.on('invite user', function (data) {
+        logWithStyle(' invite you to join room ', data)
     });
 
     // Whenever the server emits 'user joined', log it in the chat body
     socket.on('user joined', function (data) {
-        log(data.username + ' joined');
-        addParticipantsMessage(data);
+        if(data.roomName){
+            log(data.username + ' joined to room: '+data.roomName);
+        }
+        else {
+            log(data.username + ' joined');
+        }
+
     });
 
     // Whenever the server emits 'user left', log it in the chat body
     socket.on('user left', function (data) {
-        if(data.otherRoom){
+        if (data.otherRoom) {
             log(data.username + ' go to other room');
         }
         else {
             log(data.username + ' left');
         }
-
-        addParticipantsMessage(data);
         removeChatTyping(data);
     });
 
