@@ -100,7 +100,10 @@ io.on('connection', function (socket) {
         socket.emit('user joined', {
             username: "you",
             roomName: data.roomName
-        })
+        });
+        if (messageHistory.length !== 0) {
+            socket.emit('load history', messageHistory, socket.roomName);
+        }
     });
 
 
