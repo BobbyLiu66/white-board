@@ -27,6 +27,15 @@ $(function () {
     $roomnameInput.hide();
     $inviteFriend.hide();
     //events
+    if (window.sessionStorage.username){
+        $loginPage.hide();
+        $chatPage.show();
+        $loginPage.off('click');
+        $currentInput = $inputMessage.focus();
+        username = window.sessionStorage.username;
+        connected = true;
+        socket.emit('add user',username,window.sessionStorage.roomName)
+    }
 
     //clear message
     $('#clearChat').click(function () {
@@ -71,6 +80,7 @@ $(function () {
 
             // Tell the server your username
             socket.emit('add user', username);
+            window.sessionStorage.username = username
         }
     }
 
@@ -83,6 +93,7 @@ $(function () {
             $loginPage.off('click');
             // Tell the server your username and roomName
             socket.emit('create room', {roomName: roomName, owner: username});
+            window.sessionStorage.roomName = roomName
         }
     }
 
@@ -98,6 +109,7 @@ $(function () {
 
     // Sends a chat message
     function sendMessage() {
+
         let message = $inputMessage.val();
         // Prevent markup from being injected into the message
         message = cleanInput(message);
@@ -105,6 +117,7 @@ $(function () {
         if (message && connected) {
             $inputMessage.val('');
             // tell server to execute 'new message' and send along one parameter
+            //TODO bugs need to be solved
             socket.emit('new message', message);
         }
     }
@@ -116,7 +129,6 @@ $(function () {
     }
 
     function logWithStyle(message, options) {
-
         let $usernameDiv = $('<span/>')
             .text(options.username)
             .css('color', getUsernameColor(options.username));
@@ -328,6 +340,8 @@ $(function () {
     });
     // Whenever the server emits 'new message', update the chat body
     socket.on('new message', function (data) {
+        //TODO bugs
+        console.log(data);
         addChatMessage(data);
     });
 
@@ -350,7 +364,7 @@ $(function () {
         log(data.roomName + ' created successfully')
     });
 
-    //TODO test
+
     socket.on('invite user', function (data) {
         logWithStyle(' invite you to join room ', data)
     });

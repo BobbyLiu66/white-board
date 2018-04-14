@@ -1,10 +1,10 @@
 // Setup basic express server
-var express = require('express');
-var app = express();
-var path = require('path');
-var server = require('http').createServer(app);
+let express = require('express');
+let app = express();
+let path = require('path');
+let server = require('http').createServer(app);
 const io = require('socket.io')(server);
-var port = process.env.PORT || 3000;
+let port = process.env.PORT || 3000;
 
 server.listen(port, function () {
     console.log('Server listening at port %d', port);
@@ -14,7 +14,6 @@ server.listen(port, function () {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Chatroom
-
 let messageHistory = [];
 let rooms = {};
 let users = {};
@@ -55,14 +54,15 @@ io.on('connection', function (socket) {
     });
 
     // when the client emits 'add user', this listens and executes
-    socket.on('add user', function (username) {
+    socket.on('add user', function (username,roomName) {
         if (addedUser) return;
         // we store the username in the socket session for this client
         //TODO save this into redis or just mongoDB?
         users[username] = socket.id;
         socket.username = username;
-        socket.roomName = "default";
-        socket.join("default");
+        //TODO is this parameter needed ?
+        socket.roomName = roomName ? roomName : "default";
+        socket.join(socket.roomName);
         addedUser = true;
         socket.emit('login', {
             roomName: socket.roomName
