@@ -68,12 +68,16 @@ $(function () {
     });
 
     // Sets the client's username
-    function setUsername() {
-        username = cleanInput($usernameInput.val().trim());
 
+    //TODO change the press ENTRY way to login. both value need to be checked
+    function setUsername() {
+        //TODO send ajax to check username unique
+        username = cleanInput($usernameInput.val().trim());
+        //TODO add password
+        let password = cleanInput($passwordInout.val().trim());
         // If the username is valid
         //TODO check username unique
-        if (username) {
+        if (username && password) {
             $loginPage.fadeOut();
             $chatPage.show();
             $loginPage.off('click');
@@ -81,6 +85,7 @@ $(function () {
 
             // Tell the server your username
             socket.emit('add user', username);
+            //TODO after check add this should be implement this in login function
             window.sessionStorage.username = username
         }
     }
@@ -268,11 +273,10 @@ $(function () {
 
     // Gets the 'X is typing' messages of a user
     function getTypingMessages(data) {
-        return $('.typing.message').filter(function (i) {
+        return $('.typing.message').filter(function () {
             return $(this).data('username') === data.username;
         });
     }
-
     // Gets the color of a username through our hash function
     function getUsernameColor(username) {
         // Compute hash code
@@ -375,11 +379,9 @@ $(function () {
         log(data.roomName + ' created successfully')
     });
 
-
     socket.on('invite user', function (data) {
         logWithStyle(' invite you to join room ', data)
     });
-
     // Whenever the server emits 'user joined', log it in the chat body
     socket.on('user joined', function (data) {
         if (data.roomName) {
