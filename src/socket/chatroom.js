@@ -1,5 +1,6 @@
 let app = require('../../app');
 let http = require('http');
+let _ = require('lodash');
 
 let server = http.createServer(app);
 const io = require('socket.io')(server);
@@ -10,10 +11,16 @@ let messageHistory = [];
 let rooms = {};
 let users = {};
 
-io.on('connection', function (socket) {
+io.on('connection',function (socket) {
     //chat room
     let addedUser = false;
-    socket.on('create room', function (data) {
+    socket.on('create room',async function (data) {
+        //TODO check room name
+        let result = await user_service.checkRoom(data.roomName,data.owner);
+        if(result.err){
+            socket.emit('create room fail',result);
+            return
+        }
         io.in(socket.roomName).emit('user left', {
             username: socket.username,
             otherRoom: true
@@ -56,8 +63,10 @@ io.on('connection', function (socket) {
         socket.join(socket.roomName);
         addedUser = true;
         socket.emit('login', {
+            username: username,
             roomName: socket.roomName
         });
+        user_service.updateUserStatus(username,"login");
         //load message history
         if (messageHistory.length !== 0) {
             let sendHistory = _.filter(messageHistory,function (value) {
@@ -91,6 +100,8 @@ io.on('connection', function (socket) {
             roomName: socket.roomName,
             username:username
         });
+        user_service.updateUserStatus(username,"login");
+
         //load message history
         if (messageHistory.length !== 0) {
             let sendHistory = _.filter(messageHistory,function (value) {
@@ -157,13 +168,15 @@ io.on('connection', function (socket) {
     });
 
     // when the user disconnects.. perform this
+    //TODO update mongo
     socket.on('disconnect', function () {
         if (addedUser) {
             // echo globally that this client has left
+            user_service.updateUserStatus(socket.username,"logout");
             io.in(socket.roomName).emit('user left', {
                 username: socket.username,
             });
-        }
+            }
     });
 });
 

@@ -1,8 +1,7 @@
 const mongo_chat = require('../persistance/mongo_chat');
-//TODO
-let resultObj = {};
 
 exports.checkUser = (username,password)=>{
+    let resultObj = {};
     return mongo_chat.checkUsername(username,password).then((result)=>{
         if(result.hasOwnProperty('errmsg')){
             resultObj.err = result.errmsg
@@ -18,6 +17,7 @@ exports.checkUser = (username,password)=>{
 };
 
 exports.checkRoom = (roomName,username) => {
+    let resultObj = {};
     return mongo_chat.checkRoomName(roomName,username).then((result)=>{
         if(result.hasOwnProperty('errmsg')){
             resultObj.err = result.errmsg
@@ -34,6 +34,7 @@ exports.checkRoom = (roomName,username) => {
 };
 
 exports.checkFriend = (username)=>{
+    let resultObj = {};
     return mongo_chat.checkUsername(username).then((result)=>{
         if(result.hasOwnProperty('errmsg')){
             resultObj.message = "Invite success"
@@ -47,4 +48,8 @@ exports.checkFriend = (username)=>{
         resultObj.state = false;
         return resultObj
     })
+};
+
+exports.updateUserStatus = (username,status) =>{
+    mongo_chat.updateUserStatus(username,status).catch((err)=>{console.log(err)})
 };

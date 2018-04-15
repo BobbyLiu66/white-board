@@ -29,7 +29,7 @@ $(function () {
     $roomnameInput.hide();
     $inviteFriend.hide();
     //events
-    if (window.sessionStorage.username) {
+    if (window.sessionStorage.username !== undefined) {
         $loginPage.hide();
         $chatPage.show();
         $loginPage.off('click');
@@ -75,7 +75,7 @@ $(function () {
         let nickname = cleanInput($usernameInput.val().trim());
         let password = cleanInput($passwordInput.val().trim());
         //TODO login success there should be a block say something
-        if(nickname && password){
+        if (nickname && password) {
             socket.emit('check user', nickname, password);
         }
         else {
@@ -88,30 +88,13 @@ $(function () {
         let roomID = cleanInput($roomnameInput.val().trim());
         //TODO a close button
         if (roomID) {
-            axios.get('/user/room?ID=' + roomID).then(function (res) {
-                if (res.status === 200) {
-                    if (res.data.err == null) {
-                        //TODO create success there should be a block say something
-                        roomName = roomID;
-                        $loginPage.fadeOut();
-                        $chatPage.show();
-                        $loginPage.off('click');
-                        // Tell the server your username and roomName
-                        socket.emit('create room', {roomName: roomName, owner: username});
-                        //TODO auto go to the room should be implement at the server side
-                    }
-                    else {
-                        alert(res.data.err);
-                        $roomnameInput.val('');
-                        $roomnameInput.focus()
-                    }
-                }
-            }).catch(function (error) {
-                alert(error)
-            });
+            // Tell the server your username and roomName
+            socket.emit('create room', {roomName: roomID, owner: username});
         }
         else {
-            alert('You need to write the room name')
+            alert('You need to write the room name');
+            $roomnameInput.val('');
+            $roomnameInput.focus()
         }
     }
 
@@ -364,12 +347,12 @@ $(function () {
     // Whenever the server emits 'login', log the login message
     socket.on('login', function (data) {
         username = data.username;
-        console.log(username);
         $loginPage.fadeOut();
         $chatPage.show();
         $loginPage.off('click');
         $currentInput = $inputMessage.focus();
-        window.sessionStorage.username = username;
+        window.sessionStorage.username = data.username;
+        console.log(window.sessionStorage);
         $usernameInput.val('');
         $passwordInput.val('');
         connected = true;
@@ -380,11 +363,18 @@ $(function () {
         });
     });
 
-    socket.on('login fail',function (data) {
-       alert(data.err);
-       $usernameInput.val('');
-       $passwordInput.val('');
-       $usernameInput.focus()
+    socket.on('login fail', function (data) {
+        alert(data.err);
+        $usernameInput.val('');
+        $passwordInput.val('');
+        $usernameInput.focus()
+    });
+
+
+    socket.on('create room fail', function (data) {
+        alert(data.err);
+        $roomnameInput.val('');
+        $usernameInput.focus()
     });
     // Whenever the server emits 'new message', update the chat body
     socket.on('new message', function (data) {
@@ -418,6 +408,11 @@ $(function () {
     });
 
     socket.on('create room', function (data) {
+        roomName = data.roomName;
+        window.sessionStorage.roomName = data.roomName;
+        $loginPage.fadeOut();
+        $chatPage.show();
+        $loginPage.off('click');
         socket.emit('user left', data);
         $('.messages > li').remove();
         log(data.roomName + ' created successfully')
@@ -428,6 +423,7 @@ $(function () {
     });
     // Whenever the server emits 'user joined', log it in the chat body
     socket.on('user joined', function (data) {
+        console.log(data);
         if (data.roomName) {
             log(data.username + ' joined to room: ' + data.roomName);
         }
