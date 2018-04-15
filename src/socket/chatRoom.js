@@ -1,4 +1,10 @@
-const io = require('../../bin/www');
+let app = require('../../app');
+let http = require('http');
+
+let server = http.createServer(app);
+const io = require('socket.io')(server);
+
+let user_service = require('../service/user');
 
 let messageHistory = [];
 let rooms = {};
@@ -40,17 +46,50 @@ io.on('connection', function (socket) {
     });
 
     // when the client emits 'add user', this listens and executes
-    socket.on('add user', async function (username,roomName) {
+    socket.on('add user', function (username,roomName="default") {
         if (addedUser) return;
         // we store the username in the socket session for this client
         //TODO save this into redis or just mongoDB?
         users[username] = socket.id;
         socket.username = username;
-        socket.roomName = roomName ? roomName : "default";
+        socket.roomName = roomName;
         socket.join(socket.roomName);
         addedUser = true;
         socket.emit('login', {
             roomName: socket.roomName
+        });
+        //load message history
+        if (messageHistory.length !== 0) {
+            let sendHistory = _.filter(messageHistory,function (value) {
+                return value.roomName === socket.roomName
+            });
+            socket.emit('load history', sendHistory);
+        }
+
+        socket.broadcast.to(socket.roomName).emit('user joined', {
+            username: socket.username,
+        });
+
+        socket.emit('user joined', {
+            username: "you",
+            roomName: socket.roomName
+        })
+    });
+
+    socket.on('check user',async function (username,pwd) {
+        let result = await user_service.checkUser(username, pwd);
+        if (result.err) {
+            socket.emit('login fail',result);
+            return
+        }
+        users[username] = socket.id;
+        socket.username = username;
+        socket.roomName = "default";
+        socket.join(socket.roomName);
+        addedUser = true;
+        socket.emit('login', {
+            roomName: socket.roomName,
+            username:username
         });
         //load message history
         if (messageHistory.length !== 0) {
@@ -127,3 +166,6 @@ io.on('connection', function (socket) {
         }
     });
 });
+
+
+module.exports = server;

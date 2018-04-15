@@ -68,7 +68,7 @@ ul {
     width: 22%;
 }
 
-.login.page .form .usernameInput, .login.page .form .roomnameInput, .login.page .form .inviteInput {
+.login.page .form .usernameInput, .login.page .form .roomnameInput, .login.page .form .inviteInput , .login.page .form .passwordInput {
     background-color: transparent;
     border: none;
     border-bottom: 2px solid #fff;
@@ -82,12 +82,12 @@ ul {
     font-size: 150%;
 }
 
-.login.page .usernameInput, .login.page .roomnameInput, .login.page .inviteInput {
+.login.page .usernameInput, .login.page .roomnameInput, .login.page .inviteInput , .login.page .passwordInput {
     font-size: 150%;
     letter-spacing: 3px;
 }
 
-.login.page .title, .login.page .usernameInput, .login.page .title, .login.page .roomnameInput, .login.page .title, .login.page .inviteInput {
+.login.page .title, .login.page .usernameInput, .login.page .roomnameInput, .login.page .inviteInput , .login.page .passwordInput {
     color: #fff;
     font-weight: 100;
 }

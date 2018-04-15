@@ -17,6 +17,7 @@ $(function () {
 
     let $window = $(window);
     let $usernameInput = $('.usernameInput'); // Input for username
+    let $passwordInput = $('.passwordInput');
     let $roomnameInput = $('.roomnameInput');
     let $inviteFriend = $('.inviteInput');
     let $messages = $('.messages'); // Messages area
@@ -47,6 +48,7 @@ $(function () {
     $('#newRoom').click(function () {
         $('h3.title').text('Input your room name');
         $usernameInput.hide();
+        $passwordInput.hide();
         $inviteFriend.hide();
         $roomnameInput.show();
         $chatPage.fadeOut();
@@ -59,6 +61,7 @@ $(function () {
     $('#invite').click(function () {
         $('h3.title').text('Input your friend name');
         $usernameInput.hide();
+        $passwordInput.hide();
         $roomnameInput.hide();
         $inviteFriend.show();
         $chatPage.fadeOut();
@@ -68,54 +71,80 @@ $(function () {
     });
 
     // Sets the client's username
-
-    //TODO change the press ENTRY way to login. both value need to be checked
     function setUsername() {
-        //TODO send ajax to check username unique
-        username = cleanInput($usernameInput.val().trim());
-        //TODO add password
-        let password = cleanInput($passwordInout.val().trim());
-        // If the username is valid
-        //TODO check username unique
-        if (username && password) {
-            $loginPage.fadeOut();
-            $chatPage.show();
-            $loginPage.off('click');
-            $currentInput = $inputMessage.focus();
-
-            // Tell the server your username
-            socket.emit('add user', username);
-            //TODO after check add this should be implement this in login function
-            window.sessionStorage.username = username
+        let nickname = cleanInput($usernameInput.val().trim());
+        let password = cleanInput($passwordInput.val().trim());
+        //TODO login success there should be a block say something
+        if(nickname && password){
+            socket.emit('check user', nickname, password);
+        }
+        else {
+            alert("You need to fill in the form")
         }
     }
 
     // Sets the room's name
     function setRoomName() {
-        roomName = cleanInput($roomnameInput.val().trim());
-        if (roomName) {
-            $loginPage.fadeOut();
-            $chatPage.show();
-            $loginPage.off('click');
-            // Tell the server your username and roomName
-            socket.emit('create room', {roomName: roomName, owner: username});
-            window.sessionStorage.roomName = roomName
+        let roomID = cleanInput($roomnameInput.val().trim());
+        //TODO a close button
+        if (roomID) {
+            axios.get('/user/room?ID=' + roomID).then(function (res) {
+                if (res.status === 200) {
+                    if (res.data.err == null) {
+                        //TODO create success there should be a block say something
+                        roomName = roomID;
+                        $loginPage.fadeOut();
+                        $chatPage.show();
+                        $loginPage.off('click');
+                        // Tell the server your username and roomName
+                        socket.emit('create room', {roomName: roomName, owner: username});
+                        //TODO auto go to the room should be implement at the server side
+                    }
+                    else {
+                        alert(res.data.err);
+                        $roomnameInput.val('');
+                        $roomnameInput.focus()
+                    }
+                }
+            }).catch(function (error) {
+                alert(error)
+            });
+        }
+        else {
+            alert('You need to write the room name')
         }
     }
 
+    // Send invite message to a person
     function sendInviteMessage() {
-        inviteFriend = cleanInput($inviteFriend.val().trim());
-        if (inviteFriend) {
-            $loginPage.fadeOut();
-            $chatPage.show();
-            $loginPage.off('click');
-            socket.emit('invite user', {inviteName: inviteFriend, username: username});
+        let friendName = cleanInput($inviteFriend.val().trim());
+        //TODO a close button
+        if (friendName) {
+            axios.get('/user/friend?ID=' + friendName).then(function (res) {
+                if (res.status === 200) {
+                    if (res.data.err == null) {
+                        //TODO login success there should be a block say something
+                        inviteFriend = friendName;
+                        $loginPage.fadeOut();
+                        $chatPage.show();
+                        $loginPage.off('click');
+                        socket.emit('invite user', {inviteName: inviteFriend, username: username});
+                        $inviteFriend.val('')
+                    }
+                    else {
+                        alert(res.data.err);
+                        $inviteFriend.val('');
+                        $inviteFriend.focus()
+                    }
+                }
+            }).catch(function (error) {
+                alert(error)
+            });
         }
     }
 
     // Sends a chat message
     function sendMessage() {
-
         let message = $inputMessage.val();
         // Prevent markup from being injected into the message
         message = cleanInput(message);
@@ -277,6 +306,7 @@ $(function () {
             return $(this).data('username') === data.username;
         });
     }
+
     // Gets the color of a username through our hash function
     function getUsernameColor(username) {
         // Compute hash code
@@ -298,9 +328,7 @@ $(function () {
                 socket.emit('stop typing');
                 typing = false;
             } else {
-                //TODO check username unique
                 setUsername();
-                $usernameInput.val('')
             }
             if (roomState) {
                 roomState = false;
@@ -335,12 +363,28 @@ $(function () {
 
     // Whenever the server emits 'login', log the login message
     socket.on('login', function (data) {
+        username = data.username;
+        console.log(username);
+        $loginPage.fadeOut();
+        $chatPage.show();
+        $loginPage.off('click');
+        $currentInput = $inputMessage.focus();
+        window.sessionStorage.username = username;
+        $usernameInput.val('');
+        $passwordInput.val('');
         connected = true;
         // Display the welcome message
         const message = "Welcome to Chat " + data.roomName;
         log(message, {
             prepend: true
         });
+    });
+
+    socket.on('login fail',function (data) {
+       alert(data.err);
+       $usernameInput.val('');
+       $passwordInput.val('');
+       $usernameInput.focus()
     });
     // Whenever the server emits 'new message', update the chat body
     socket.on('new message', function (data) {
