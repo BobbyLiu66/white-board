@@ -182,6 +182,7 @@ $(function () {
 
     //load chat history message
     function loadChatMessage(data, options) {
+
         let $usernameDiv = $('<span class="username"/>')
             .text(data.username)
             .css('color', getUsernameColor(data.username));
@@ -342,7 +343,8 @@ $(function () {
         let now = (new Date()).getMinutes();
         if (now !== dateTime) {
             dateTime = now;
-            log((new Date()).getHours() + ":" + (new Date()).getMinutes());
+            let minutes = (new Date()).getMinutes() < 10 ? "0" + (new Date()).getMinutes() : (new Date()).getMinutes();
+            log((new Date()).getHours() + ":" + minutes);
         }
         addChatMessage(data);
     });
@@ -352,9 +354,18 @@ $(function () {
     });
 
     socket.on('load history', function (data) {
+        let flagMinutes, flag = true;
         _.forEach(data, function (value) {
+            let messageTime = new Date(value.messageTime);
+            if (flag || (messageTime.getMinutes() - 5) >= flagMinutes) {
+                flagMinutes = messageTime.getMinutes();
+                let minutes = messageTime.getMinutes() < 10 ? "0" + messageTime.getMinutes() : messageTime.getMinutes();
+                log(messageTime.getHours() + ":" + minutes)
+            }
+            flag = false;
             loadChatMessage(value)
         });
+
         log('chat history loaded')
     });
 

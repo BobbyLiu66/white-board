@@ -43,10 +43,12 @@ io.on('connection', function (socket) {
     // when the client emits 'new message', this listens and executes
     socket.on('new message', function (data) {
         // we tell the client to execute 'new message'
+        //TODO save message history to database. once server restart load history to RAM
         messageHistory.push({
             username: socket.username,
             message: data,
-            roomName: socket.roomName
+            roomName: socket.roomName,
+            messageTime:new Date()
         });
         io.in(socket.roomName).emit('new message', {
             username: socket.username,
