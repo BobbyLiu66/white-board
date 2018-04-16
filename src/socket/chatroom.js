@@ -11,14 +11,14 @@ let messageHistory = [];
 let rooms = {};
 let users = {};
 
-io.on('connection',function (socket) {
+io.on('connection', function (socket) {
     //chat room
     let addedUser = false;
-    socket.on('create room',async function (data) {
+    socket.on('create room', async function (data) {
         //TODO check room name
-        let result = await user_service.checkRoom(data.roomName,data.owner);
-        if(result.err){
-            socket.emit('create room fail',result);
+        let result = await user_service.checkRoom(data.roomName, data.owner);
+        if (result.err) {
+            socket.emit('create room fail', result);
             return
         }
         io.in(socket.roomName).emit('user left', {
@@ -44,7 +44,7 @@ io.on('connection',function (socket) {
             username: socket.username,
             message: data,
             roomName: socket.roomName,
-            messageTime:new Date()
+            messageTime: new Date()
         });
         io.in(socket.roomName).emit('new message', {
             username: socket.username,
@@ -53,7 +53,7 @@ io.on('connection',function (socket) {
     });
 
     // when the client emits 'add user', this listens and executes
-    socket.on('add user', function (username,roomName="default") {
+    socket.on('add user', function (username, roomName = "default") {
         if (addedUser) return;
         // we store the username in the socket session for this client
         //TODO save this into redis or just mongoDB?
@@ -66,10 +66,10 @@ io.on('connection',function (socket) {
             username: username,
             roomName: socket.roomName
         });
-        user_service.updateUserStatus(username,"login");
+        user_service.updateUserStatus(username, "login");
         //load message history
         if (messageHistory.length !== 0) {
-            let sendHistory = _.filter(messageHistory,function (value) {
+            let sendHistory = _.filter(messageHistory, function (value) {
                 return value.roomName === socket.roomName
             });
             socket.emit('load history', sendHistory);
@@ -85,10 +85,10 @@ io.on('connection',function (socket) {
         })
     });
 
-    socket.on('check user',async function (username,pwd) {
+    socket.on('check user', async function (username, pwd) {
         let result = await user_service.checkUser(username, pwd);
         if (result.err) {
-            socket.emit('login fail',result);
+            socket.emit('login fail', result);
             return
         }
         users[username] = socket.id;
@@ -98,13 +98,13 @@ io.on('connection',function (socket) {
         addedUser = true;
         socket.emit('login', {
             roomName: socket.roomName,
-            username:username
+            username: username
         });
-        user_service.updateUserStatus(username,"login");
+        user_service.updateUserStatus(username, "login");
 
         //load message history
         if (messageHistory.length !== 0) {
-            let sendHistory = _.filter(messageHistory,function (value) {
+            let sendHistory = _.filter(messageHistory, function (value) {
                 return value.roomName === socket.roomName
             });
             socket.emit('load history', sendHistory);
@@ -121,16 +121,26 @@ io.on('connection',function (socket) {
     });
 
     //invite other user to this room
-    socket.on('invite user', function (data) {
-        io.in(users[data.inviteName]).emit('invite user', {
-            username: data.username,
-            roomName: socket.roomName
-        })
+    socket.on('invite user', async function (data) {
+        let result = await user_service.checkFriend(data.inviteName);
+        if (result.message) {
+            io.in(users[data.inviteName]).emit('invite user', {
+                username: data.username,
+                roomName: socket.roomName,
+                inviteName: data.inviteName
+            });
+            socket.emit('invite success', {
+                inviteName: data.inviteName
+            })
+        }
+        else {
+            socket.emit('invite fail', result)
+        }
     });
 
     socket.on('accept invite', function (data) {
         socket.leave(socket.roomName);
-        //TODO
+        user_service.updateRoomUser(socket.roomName,data.username);
         rooms[data.roomName] = {user: data.username};
         socket.join(data.roomName);
         socket.roomName = data.roomName;
@@ -142,7 +152,10 @@ io.on('connection',function (socket) {
             roomName: data.roomName
         });
         if (messageHistory.length !== 0) {
-            socket.emit('load history', messageHistory, socket.roomName);
+            let sendHistory = _.filter(messageHistory, function (value) {
+                return value.roomName === socket.roomName
+            });
+            socket.emit('load history', sendHistory, socket.roomName);
         }
     });
 
@@ -172,11 +185,11 @@ io.on('connection',function (socket) {
     socket.on('disconnect', function () {
         if (addedUser) {
             // echo globally that this client has left
-            user_service.updateUserStatus(socket.username,"logout");
+            user_service.updateUserStatus(socket.username, "logout");
             io.in(socket.roomName).emit('user left', {
                 username: socket.username,
             });
-            }
+        }
     });
 });
 

@@ -28,28 +28,30 @@ exports.checkRoom = (roomName,username) => {
         return resultObj
     },(err)=>{
         resultObj.err = err;
-        resultObj.state = false;
         return resultObj
     })
 };
 
-exports.checkFriend = (username)=>{
+exports.checkFriend = (inviteName)=>{
     let resultObj = {};
-    return mongo_chat.checkUsername(username).then((result)=>{
+    return mongo_chat.inviteFriend(inviteName).then((result)=>{
         if(result.hasOwnProperty('errmsg')){
-            resultObj.message = "Invite success"
+            resultObj.err = result.errmsg
         }
         else {
-            resultObj.err = "Nick name did not exist"
+            resultObj.message = result.message
         }
         return resultObj
     },(err)=>{
         resultObj.err = err;
-        resultObj.state = false;
         return resultObj
     })
 };
 
 exports.updateUserStatus = (username,status) =>{
     mongo_chat.updateUserStatus(username,status).catch((err)=>{console.log(err)})
+};
+
+exports.updateRoomUser = (roomName,username) =>{
+    mongo_chat.updateRoomUser(roomName,username).catch((err)=>{console.log(err)})
 };

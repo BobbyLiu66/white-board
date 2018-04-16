@@ -9,7 +9,7 @@ $(function () {
     ];
     // Initialize letiables
     // Prompt for setting a username
-    let username, roomName, inviteFriend, roomState, friendState;
+    let inviteFriend, roomState, friendState;
     let connected = false;
     let typing = false;
     let lastTypingTime;
@@ -34,9 +34,8 @@ $(function () {
         $chatPage.show();
         $loginPage.off('click');
         $currentInput = $inputMessage.focus();
-        username = window.sessionStorage.username;
         connected = true;
-        socket.emit('add user', username, window.sessionStorage.roomName)
+        socket.emit('add user', window.sessionStorage.username, window.sessionStorage.roomName)
     }
 
     //clear message
@@ -87,9 +86,14 @@ $(function () {
     function setRoomName() {
         let roomID = cleanInput($roomnameInput.val().trim());
         //TODO a close button
-        if (roomID) {
+        if (roomID === window.sessionStorage.roomName) {
+            alert('You have already in this room');
+            $roomnameInput.val('');
+            $roomnameInput.focus()
+        }
+        else if (roomID) {
             // Tell the server your username and roomName
-            socket.emit('create room', {roomName: roomID, owner: username});
+            socket.emit('create room', {roomName: roomID, owner: window.sessionStorage.username});
         }
         else {
             alert('You need to write the room name');
@@ -102,27 +106,18 @@ $(function () {
     function sendInviteMessage() {
         let friendName = cleanInput($inviteFriend.val().trim());
         //TODO a close button
-        if (friendName) {
-            axios.get('/user/friend?ID=' + friendName).then(function (res) {
-                if (res.status === 200) {
-                    if (res.data.err == null) {
-                        //TODO login success there should be a block say something
-                        inviteFriend = friendName;
-                        $loginPage.fadeOut();
-                        $chatPage.show();
-                        $loginPage.off('click');
-                        socket.emit('invite user', {inviteName: inviteFriend, username: username});
-                        $inviteFriend.val('')
-                    }
-                    else {
-                        alert(res.data.err);
-                        $inviteFriend.val('');
-                        $inviteFriend.focus()
-                    }
-                }
-            }).catch(function (error) {
-                alert(error)
-            });
+        if (friendName === window.sessionStorage.username) {
+            alert('You cannot invite yourself');
+            $inviteFriend.val('');
+            $inviteFriend.focus()
+        }
+        else if (friendName) {
+            socket.emit('invite user', {inviteName: friendName, username: window.sessionStorage.username});
+        }
+        else {
+            alert('You need to fill your friend name');
+            $inviteFriend.val('');
+            $inviteFriend.focus()
         }
     }
 
@@ -153,7 +148,7 @@ $(function () {
             .text("accept").click(function () {
                 socket.emit('accept invite', {
                     roomName: options.roomName,
-                    username: username
+                    username: window.sessionStorage.username
                 });
                 $(this).parent().children('button').attr("disabled", true)
             });
@@ -162,7 +157,7 @@ $(function () {
                 socket.emit('decline invite', {
                     roomName: options.roomName,
                     username: options.username,
-                    inviteUser: username
+                    inviteUser: window.sessionStorage.username
                 });
                 $(this).parent().children('button').attr("disabled", true)
             });
@@ -306,7 +301,7 @@ $(function () {
     $window.keydown(function (event) {
         // When the client hits ENTER on their keyboard
         if (event.which === 13) {
-            if (username) {
+            if (window.sessionStorage.username) {
                 sendMessage();
                 socket.emit('stop typing');
                 typing = false;
@@ -314,12 +309,10 @@ $(function () {
                 setUsername();
             }
             if (roomState) {
-                roomState = false;
                 setRoomName();
                 $roomnameInput.val('')
             }
             if (friendState) {
-                friendState = false;
                 sendInviteMessage();
                 $inviteFriend.val('')
             }
@@ -346,13 +339,12 @@ $(function () {
 
     // Whenever the server emits 'login', log the login message
     socket.on('login', function (data) {
-        username = data.username;
         $loginPage.fadeOut();
         $chatPage.show();
         $loginPage.off('click');
         $currentInput = $inputMessage.focus();
         window.sessionStorage.username = data.username;
-        console.log(window.sessionStorage);
+        window.sessionStorage.roomName = data.roomName;
         $usernameInput.val('');
         $passwordInput.val('');
         connected = true;
@@ -370,11 +362,16 @@ $(function () {
         $usernameInput.focus()
     });
 
-
     socket.on('create room fail', function (data) {
         alert(data.err);
         $roomnameInput.val('');
         $usernameInput.focus()
+    });
+
+    socket.on('invite fail', function (data) {
+        alert(data.err);
+        $inviteFriend.val('');
+        $inviteFriend.focus()
     });
     // Whenever the server emits 'new message', update the chat body
     socket.on('new message', function (data) {
@@ -408,31 +405,45 @@ $(function () {
     });
 
     socket.on('create room', function (data) {
-        roomName = data.roomName;
         window.sessionStorage.roomName = data.roomName;
         $loginPage.fadeOut();
         $chatPage.show();
         $loginPage.off('click');
         socket.emit('user left', data);
+        roomState = false;
         $('.messages > li').remove();
         log(data.roomName + ' created successfully')
     });
 
     socket.on('invite user', function (data) {
+        inviteFriend = data.inviteName;
+        $loginPage.fadeOut();
+        $chatPage.show();
+        $loginPage.off('click');
+        friendState = false;
         logWithStyle(' invite you to join room ', data)
     });
+
+
+    socket.on('invite success', function (data) {
+        inviteFriend = data.inviteName;
+        $loginPage.fadeOut();
+        $chatPage.show();
+        $loginPage.off('click');
+        friendState = false;
+        log('invite ' + inviteFriend + ' success')
+    });
+
     // Whenever the server emits 'user joined', log it in the chat body
     socket.on('user joined', function (data) {
-        console.log(data);
         if (data.roomName) {
             log(data.username + ' joined to room: ' + data.roomName);
+            window.sessionStorage.roomName = data.roomName;
         }
         else {
             log(data.username + ' joined');
         }
-
     });
-
     // Whenever the server emits 'user left', log it in the chat body
     socket.on('user left', function (data) {
         if (data.otherRoom) {
@@ -460,8 +471,9 @@ $(function () {
 
     socket.on('reconnect', function () {
         log('you have been reconnected');
-        if (username) {
-            socket.emit('add user', username);
+        if (window.sessionStorage.username) {
+            console.log(window.sessionStorage);
+            socket.emit('add user', window.sessionStorage.username,window.sessionStorage.roomName);
         }
     });
 

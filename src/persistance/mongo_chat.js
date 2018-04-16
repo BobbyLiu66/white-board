@@ -3,7 +3,7 @@ const mongo_client = require('../db/mongo_client').mongo_client;
 exports.checkUsername = async (username, password) => {
     let client = await mongo_client;
     let result = await client.db('weather').collection('chat_user').findOne({_id: username}).catch((err) => {
-        return err
+        return {errmsg: err}
     });
     if (result !== null) {
         if (result.password === password && result.status === 'logout') {
@@ -27,27 +27,42 @@ exports.checkUsername = async (username, password) => {
         password: password,
         status: 'login'
     }).catch((err) => {
-        return err
+        return {errmsg: err}
     });
 };
-//TODO finish this
+
+exports.inviteFriend = async (inviteName) => {
+    let client = await mongo_client;
+    let result = await client.db('weather').collection('chat_user').findOne({_id: inviteName}).catch((err) => {
+        return {errmsg: err}
+    });
+    if (result !== null) {
+        return {
+            message: 'invite success'
+        }
+    }
+    else {
+        return {
+            errmsg: 'Nick name did not exist'
+        }
+    }
+};
+
 exports.checkRoomName = async (roomName, username) => {
     let client = await mongo_client;
     let date = await client.db('weather').collection('chat_room').findOne({_id: roomName}).catch((err) => {
-        return err
+        return {errmsg: err}
     });
     if (date !== null) {
         let allParticipants = [];
         allParticipants.push(date.owner);
-        allParticipants.concat(date.participants);
+        allParticipants = allParticipants.concat(date.participants);
         if (allParticipants.includes(username)) {
-            //TODO have authority to go into that room and need to change the socket function
             return {
                 message: 'Join this room success'
             }
         }
         else {
-            //TODO no authority
             return {
                 errmsg: 'no authority to participant into this room'
             }
@@ -60,7 +75,7 @@ exports.checkRoomName = async (roomName, username) => {
             participants: []
         }).catch((err) => {
             return {
-                errmsg:err
+                errmsg: err
             }
         });
         return {
@@ -81,5 +96,21 @@ exports.updateUserStatus = async (username, status) => {
     });
 };
 
+exports.updateRoomUser = async (roomName, user) => {
+    let client = await mongo_client;
+    let result = await client.db('weather').collection('chat_room').findOne({_id: roomName}).catch((err) => {
+        return {errmsg: err}
+    });
+    let users = result.participants;
+    users.push(user);
+    await client.db('weather').collection('chat_room').updateOne({_id: roomName}, {
+        $set: {participants: users},
+        $currentDate: {
+            lastModified: true
+        }
+    }, {'upsert': true}).catch((err) => {
+        return {errmsg: err}
+    });
+};
 
 
