@@ -5,8 +5,6 @@ $(function () {
     let canvas = window.canvas;
     let context = window.context;
     let clear = document.getElementById('clear');
-    //TODO implement save
-    let save = $('#save');
 
     let current = {};
     let drawing = false;
@@ -14,34 +12,32 @@ $(function () {
 
     $('#whiteboard').hide();
     $('.controls').hide();
-    $hidden.prop('value','display');
+    $hidden.prop('value', 'display');
     $hidden.html('Display Whiteboard');
-    $('.login.page .form').css("width","100%");
-    $('.page').css("width","100%");
-    $('.chatRoom').css("width","100%");
+    $('.login.page .form').css("width", "100%");
+    $('.page').css("width", "100%");
+    $('.chatRoom').css("width", "100%");
 
     //Hidden display canvas
     $hidden.click(function () {
-        if($hidden.val() === 'hide'){
+        if ($hidden.val() === 'hide') {
             $('#whiteboard').hide();
             $('.controls').hide();
-            $hidden.prop('value','display');
+            $hidden.prop('value', 'display');
             $hidden.html('Display Whiteboard');
-            $('.login.page .form').css("width","100%");
-            $('.page').css("width","100%");
-            $('.chatRoom').css("width","100%")
+            $('.login.page .form').css("width", "100%");
+            $('.page').css("width", "100%");
+            $('.chatRoom').css("width", "100%")
         }
-        else if($hidden.val() === 'display'){
+        else if ($hidden.val() === 'display') {
             $('#whiteboard').show();
             $('.controls').show();
-            $hidden.prop('value','hide');
+            $hidden.prop('value', 'hide');
             $hidden.html('Hidden Whiteboard');
-            $('.login.page .form').css("width","22%");
-            $('.page').css("width","22%");
-            $('.chatRoom').css("width","22%")
+            $('.login.page .form').css("width", "22%");
+            $('.page').css("width", "22%");
+            $('.chatRoom').css("width", "22%")
         }
-
-
     });
 
     canvas.addEventListener('mousedown', onMouseDown, false);
@@ -53,8 +49,9 @@ $(function () {
 
     window.addEventListener('resize', onResize, false);
     onResize();
+
     //TODO other users color
-    function drawLine(x0, y0, x1, y1, emit) {
+    function drawLine(x0, y0, x1, y1, emit, strokeStyle, lineWidth) {
         context.beginPath();
         context.moveTo(x0, y0);
         context.lineTo(x1, y1);
@@ -74,7 +71,7 @@ $(function () {
             y0: y0 / h,
             x1: x1 / w,
             y1: y1 / h,
-            image:image
+            image: image
         });
     }
 
@@ -135,12 +132,14 @@ $(function () {
     socket.on('drawing', function (data) {
         onDrawingEvent(data)
     });
-    
-    socket.on('load image',function (data) {
+
+    socket.on('load image', function (data) {
         let image = new Image();
-        image.onload = function() {
+        image.onload = function () {
             context.drawImage(image, 0, 0);
         };
-        image.src = data.image;
+        if(data.image){
+            image.src = data.image;
+        }
     })
 });
