@@ -45,13 +45,12 @@ $(function () {
     canvas.addEventListener('mouseout', onMouseUp, false);
     canvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
 
+    //TODO get half of the online room user's permission then clear the whole area like invite friend
     clear.addEventListener('click', clearArea, false);
 
     window.addEventListener('resize', onResize, false);
     onResize();
 
-
-    //TODO other users color
     function drawLine(x0, y0, x1, y1, emit, strokeStyle, lineWidth) {
         context.beginPath();
         context.moveTo(x0, y0);
