@@ -45,6 +45,8 @@ $(function () {
 
     });
 
+
+
     canvas.addEventListener('mousedown', onMouseDown, false);
     canvas.addEventListener('mouseup', onMouseUp, false);
     canvas.addEventListener('mouseout', onMouseUp, false);
@@ -135,6 +137,7 @@ $(function () {
     
     function saveArea() {
         //TODO send ajax to server
+
     }
 
 });

@@ -15,7 +15,6 @@ io.on('connection', function (socket) {
     //chat room
     let addedUser = false;
     socket.on('create room', async function (data) {
-        //TODO check room name
         let result = await user_service.checkRoom(data.roomName, data.owner);
         if (result.err) {
             socket.emit('create room fail', result);
@@ -25,21 +24,31 @@ io.on('connection', function (socket) {
             username: socket.username,
             otherRoom: true
         });
-        rooms[data.roomName] = {owner: data.owner};
         socket.join(data.roomName);
         socket.leave(socket.roomName);
         socket.roomName = data.roomName;
-
+        socket.emit('clear screen');
+        //under the condition that join an existing room
+        if(result.status === "Join"){
+            //load message history
+            if (messageHistory.length !== 0) {
+                let sendHistory = _.filter(messageHistory, function (value) {
+                    return value.roomName === socket.roomName
+                });
+                socket.emit('load history', sendHistory);
+            }
+        }
         io.in(socket.roomName).emit('create room', {
             roomName: data.roomName,
-            owner: data.owner
+            owner: data.owner,
+            message:result.message,
         });
     });
 
     // when the client emits 'new message', this listens and executes
     socket.on('new message', function (data) {
         // we tell the client to execute 'new message'
-        //TODO save message history to database. once server restart load history to RAM
+        //TODO save to redis
         messageHistory.push({
             username: socket.username,
             message: data,
@@ -56,7 +65,6 @@ io.on('connection', function (socket) {
     socket.on('add user', function (username, roomName = "default") {
         if (addedUser) return;
         // we store the username in the socket session for this client
-        //TODO save this into redis or just mongoDB?
         users[username] = socket.id;
         socket.username = username;
         socket.roomName = roomName;
@@ -84,6 +92,7 @@ io.on('connection', function (socket) {
             roomName: socket.roomName
         })
     });
+
 
     socket.on('check user', async function (username, pwd) {
         let result = await user_service.checkUser(username, pwd);
@@ -138,10 +147,10 @@ io.on('connection', function (socket) {
         }
     });
 
+
     socket.on('accept invite', function (data) {
         socket.leave(socket.roomName);
-        user_service.updateRoomUser(socket.roomName,data.username);
-        rooms[data.roomName] = {user: data.username};
+        user_service.updateRoomUser(data.roomName,data.username);
         socket.join(data.roomName);
         socket.roomName = data.roomName;
         socket.broadcast.to(socket.roomName).emit('user joined', {
@@ -181,7 +190,6 @@ io.on('connection', function (socket) {
     });
 
     // when the user disconnects.. perform this
-    //TODO update mongo
     socket.on('disconnect', function () {
         if (addedUser) {
             // echo globally that this client has left
@@ -191,6 +199,11 @@ io.on('connection', function (socket) {
             });
         }
     });
+
+
+
+    //whiteboard
+    socket.on('drawing', (data) => socket.broadcast.to(socket.roomName).emit('drawing', data));
 });
 
 

@@ -54,12 +54,10 @@ exports.checkRoomName = async (roomName, username) => {
         return {errmsg: err}
     });
     if (date !== null) {
-        let allParticipants = [];
-        allParticipants.push(date.owner);
-        allParticipants = allParticipants.concat(date.participants);
-        if (allParticipants.includes(username)) {
+        if (date.participants.includes(username) || date.owner === username) {
             return {
-                message: 'Join this room success'
+                message: 'Join this room success',
+                status: 'Join'
             }
         }
         else {
@@ -79,7 +77,8 @@ exports.checkRoomName = async (roomName, username) => {
             }
         });
         return {
-            message: 'Create room success'
+            message: 'Create room success',
+            status:'Create'
         }
     }
 };
@@ -97,6 +96,7 @@ exports.updateUserStatus = async (username, status) => {
 };
 
 exports.updateRoomUser = async (roomName, user) => {
+    console.log(roomName,user);
     let client = await mongo_client;
     let result = await client.db('weather').collection('chat_room').findOne({_id: roomName}).catch((err) => {
         return {errmsg: err}

@@ -1,6 +1,6 @@
 const io = require('../../bin/www');
-
+//TODO cluster
 io.on('connection', (socket) => {
 //whiteboard
-    socket.on('drawing', (data) => socket.broadcast.emit('drawing', data));
+
 });

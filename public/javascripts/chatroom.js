@@ -403,6 +403,9 @@ $(function () {
 
         log('chat history loaded')
     });
+    socket.on('clear screen',function () {
+        $('.messages > li').remove();
+    });
 
     socket.on('create room', function (data) {
         window.sessionStorage.roomName = data.roomName;
@@ -411,8 +414,7 @@ $(function () {
         $loginPage.off('click');
         socket.emit('user left', data);
         roomState = false;
-        $('.messages > li').remove();
-        log(data.roomName + ' created successfully')
+        log(data.roomName + " "+ data.message)
     });
 
     socket.on('invite user', function (data) {

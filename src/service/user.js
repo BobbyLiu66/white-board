@@ -23,7 +23,8 @@ exports.checkRoom = (roomName,username) => {
             resultObj.err = result.errmsg
         }
         else {
-            resultObj.message = result.message
+            resultObj.message = result.message;
+            resultObj.status = result.status
         }
         return resultObj
     },(err)=>{
@@ -54,4 +55,8 @@ exports.updateUserStatus = (username,status) =>{
 
 exports.updateRoomUser = (roomName,username) =>{
     mongo_chat.updateRoomUser(roomName,username).catch((err)=>{console.log(err)})
+};
+
+exports.saveHistoryMessage = (data)=>{
+
 };
