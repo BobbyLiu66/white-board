@@ -1,4 +1,5 @@
 const mongo_client = require('../db/mongo_client').mongo_client;
+const _ = require('lodash');
 
 exports.checkUsername = async (username, password) => {
     let client = await mongo_client;
@@ -96,7 +97,6 @@ exports.updateUserStatus = async (username, status) => {
 };
 
 exports.updateRoomUser = async (roomName, user) => {
-    console.log(roomName,user);
     let client = await mongo_client;
     let result = await client.db('weather').collection('chat_room').findOne({_id: roomName}).catch((err) => {
         return {errmsg: err}
@@ -111,6 +111,22 @@ exports.updateRoomUser = async (roomName, user) => {
     }, {'upsert': true}).catch((err) => {
         return {errmsg: err}
     });
+};
+
+exports.countAcceptedNum = async (roomName) => {
+    let client = await mongo_client;
+    let userResult = await client.db('weather').collection('chat_room').find({_id:roomName}).catch((err)=>{return{errmsg:err}})
+    let users = userResult.participants;
+    users.push(userResult.owner);
+    let onlineNum = [];
+    return _.forEach(users,(user)=>{
+        onlineNum.push(client.db('weather').collection('chat_room').findOne({_id:user,status:"login"}).catch((err)=>{return{errmsg:err}}))
+    }).then(()=>{
+        return {
+            message:onlineNum.length
+        }
+    })
+
 };
 
 

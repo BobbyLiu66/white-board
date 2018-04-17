@@ -14,6 +14,7 @@ let users = {};
 io.on('connection', function (socket) {
     //chat room
     let addedUser = false;
+    // create or join in a room
     socket.on('create room', async function (data) {
         let result = await user_service.checkRoom(data.roomName, data.owner);
         if (result.err) {
@@ -48,7 +49,7 @@ io.on('connection', function (socket) {
         });
     });
 
-    // when the client emits 'new message', this listens and executes
+    // send new message to client
     socket.on('new message', function (data) {
         // we tell the client to execute 'new message'
         //TODO save to redis
@@ -64,7 +65,7 @@ io.on('connection', function (socket) {
         })
     });
 
-    // when the client emits 'add user', this listens and executes
+    // sign in user
     socket.on('add user', function (username, roomName = "default") {
         if (addedUser) return;
         // we store the username in the socket session for this client
@@ -100,7 +101,7 @@ io.on('connection', function (socket) {
         })
     });
 
-
+    // login method
     socket.on('check user', async function (username, pwd) {
         let result = await user_service.checkUser(username, pwd);
         if (result.err) {
@@ -157,7 +158,7 @@ io.on('connection', function (socket) {
         }
     });
 
-
+    // accept room owner's invitation
     socket.on('accept invite', function (data) {
         socket.leave(socket.roomName);
         user_service.updateRoomUser(data.roomName,data.username);
@@ -181,28 +182,28 @@ io.on('connection', function (socket) {
         })
     });
 
-
+    // decline room owner's invitation
     socket.on('decline invite', function (data) {
         socket.broadcast.to(users[data.username]).emit('decline invite', {
             username: data.inviteUser
         });
     });
 
-    // when the client emits 'typing', we broadcast it to others
+    // broadcast user typing status
     socket.on('typing', function () {
         socket.broadcast.to(socket.roomName).emit('typing', {
             username: socket.username
         });
     });
 
-    // when the client emits 'stop typing', we broadcast it to others
+    // broadcast user stop typing status
     socket.on('stop typing', function () {
         socket.broadcast.to(socket.roomName).emit('stop typing', {
             username: socket.username
         });
     });
 
-    // when the user disconnects.. perform this
+    // logout user
     socket.on('disconnect', function () {
         if (addedUser) {
             // echo globally that this client has left
@@ -216,11 +217,26 @@ io.on('connection', function (socket) {
 
 
 
-    //whiteboard
+    // whiteboard
     socket.on('drawing', (data) =>  {
         imageHistory[socket.roomName] = data.image;
         socket.to(socket.roomName).emit('drawing', data)
     });
+    let acceptedNum = {};
+    // clear area request
+    socket.on('clear area',async (data)=>{
+        let result = user_service.findOnlineNum(data.roomName);
+        if(result.message){
+            acceptedNum[data.roomName] = result.message;
+            //TODO implement send message to each user in front end
+            socket.broadcast.to(data.roomName).emit('clear area',{
+                username:data.username
+            })
+        }
+        else {
+            socket.emit('invite fail', result)
+        }
+    })
 });
 
 module.exports = server;
