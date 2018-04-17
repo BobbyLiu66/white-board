@@ -50,13 +50,14 @@ $(function () {
     window.addEventListener('resize', onResize, false);
     onResize();
 
+
     //TODO other users color
     function drawLine(x0, y0, x1, y1, emit, strokeStyle, lineWidth) {
         context.beginPath();
         context.moveTo(x0, y0);
         context.lineTo(x1, y1);
-        context.strokeStyle = document.getElementById('selColor').value;
-        context.lineWidth = document.getElementById('selWidth').value;
+        context.strokeStyle = strokeStyle;
+        context.lineWidth = lineWidth;
         context.stroke();
         context.closePath();
 
@@ -66,12 +67,15 @@ $(function () {
         let w = canvas.width;
         let h = canvas.height;
         let image = canvas.toDataURL();
+
         socket.emit('drawing', {
             x0: x0 / w,
             y0: y0 / h,
             x1: x1 / w,
             y1: y1 / h,
-            image: image
+            image: image,
+            strokeStyle:strokeStyle,
+            lineWidth:lineWidth,
         });
     }
 
@@ -86,14 +90,18 @@ $(function () {
             return;
         }
         drawing = false;
-        drawLine(current.x, current.y, e.clientX, e.clientY, true);
+        let strokeStyle = $('#selColor').val();
+        let lineWidth = $('#selWidth').val();
+        drawLine(current.x, current.y, e.clientX, e.clientY, true, strokeStyle, lineWidth);
     }
 
     function onMouseMove(e) {
         if (!drawing) {
             return;
         }
-        drawLine(current.x, current.y, e.clientX, e.clientY, true);
+        let strokeStyle = $('#selColor').val();
+        let lineWidth = $('#selWidth').val();
+        drawLine(current.x, current.y, e.clientX, e.clientY, true, strokeStyle, lineWidth);
         current.x = e.clientX;
         current.y = e.clientY;
     }
@@ -114,7 +122,7 @@ $(function () {
     function onDrawingEvent(data) {
         let w = canvas.width;
         let h = canvas.height;
-        drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, data.color);
+        drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, false, data.strokeStyle, data.lineWidth);
     }
 
     // make the canvas fill its parent
@@ -138,7 +146,7 @@ $(function () {
         image.onload = function () {
             context.drawImage(image, 0, 0);
         };
-        if(data.image){
+        if (data.image) {
             image.src = data.image;
         }
     })
