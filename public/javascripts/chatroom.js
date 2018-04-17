@@ -1,5 +1,7 @@
 $(function () {
-    const socket = io();
+    const socket = window.socket = io();
+    let canvas = window.canvas = document.getElementById('whiteboard');
+    let context = window.context = canvas.getContext('2d');
     let FADE_TIME = 150; // ms
     let TYPING_TIMER_LENGTH = 400; // ms
     let COLORS = [
@@ -35,7 +37,8 @@ $(function () {
         $loginPage.off('click');
         $currentInput = $inputMessage.focus();
         connected = true;
-        socket.emit('add user', window.sessionStorage.username, window.sessionStorage.roomName)
+        let image = canvas.toDataURL();
+        socket.emit('add user', window.sessionStorage.username, window.sessionStorage.roomName,image)
     }
 
     //clear message
@@ -73,9 +76,10 @@ $(function () {
     function setUsername() {
         let nickname = cleanInput($usernameInput.val().trim());
         let password = cleanInput($passwordInput.val().trim());
+        let image = canvas.toDataURL();
         //TODO login success there should be a block say something
         if (nickname && password) {
-            socket.emit('check user', nickname, password);
+            socket.emit('check user', nickname, password,image);
         }
         else {
             alert("You need to fill in the form")
@@ -92,8 +96,10 @@ $(function () {
             $roomnameInput.focus()
         }
         else if (roomID) {
+            let image = canvas.toDataURL();
             // Tell the server your username and roomName
-            socket.emit('create room', {roomName: roomID, owner: window.sessionStorage.username});
+            socket.emit('create room', {roomName: roomID, owner: window.sessionStorage.username,image:image});
+
         }
         else {
             alert('You need to write the room name');
@@ -130,7 +136,8 @@ $(function () {
         if (message && connected) {
             $inputMessage.val('');
             // tell server to execute 'new message' and send along one parameter
-            socket.emit('new message', message);
+            let image = canvas.toDateString();
+            socket.emit('new message', message,);
         }
     }
 
@@ -146,9 +153,11 @@ $(function () {
             .css('color', getUsernameColor(options.username));
         let $accept = $('<button class="acceptOrDecline"/>')
             .text("accept").click(function () {
+                let image = canvas.toDataURL();
                 socket.emit('accept invite', {
                     roomName: options.roomName,
-                    username: window.sessionStorage.username
+                    username: window.sessionStorage.username,
+                    image:image
                 });
                 $(this).parent().children('button').attr("disabled", true)
             });
@@ -474,8 +483,8 @@ $(function () {
     socket.on('reconnect', function () {
         log('you have been reconnected');
         if (window.sessionStorage.username) {
-            console.log(window.sessionStorage);
-            socket.emit('add user', window.sessionStorage.username,window.sessionStorage.roomName);
+            let image = canvas.toDataURL();
+            socket.emit('add user', window.sessionStorage.username,window.sessionStorage.roomName,image);
         }
     });
 

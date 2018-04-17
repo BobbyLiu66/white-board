@@ -1,10 +1,9 @@
 'use strict';
 
 $(function () {
-
-    const socket = io();
-    let canvas = document.getElementById('whiteboard');
-    let context = canvas.getContext('2d');
+    const socket = window.socket;
+    let canvas = window.canvas;
+    let context = window.context;
     let clear = document.getElementById('clear');
     //TODO implement save
     let save = $('#save');
@@ -45,8 +44,6 @@ $(function () {
 
     });
 
-
-
     canvas.addEventListener('mousedown', onMouseDown, false);
     canvas.addEventListener('mouseup', onMouseUp, false);
     canvas.addEventListener('mouseout', onMouseUp, false);
@@ -54,11 +51,9 @@ $(function () {
 
     clear.addEventListener('click', clearArea, false);
 
-    socket.on('drawing', onDrawingEvent);
-
     window.addEventListener('resize', onResize, false);
     onResize();
-
+    //TODO other users color
     function drawLine(x0, y0, x1, y1, emit) {
         context.beginPath();
         context.moveTo(x0, y0);
@@ -73,11 +68,13 @@ $(function () {
         }
         let w = canvas.width;
         let h = canvas.height;
+        let image = canvas.toDataURL();
         socket.emit('drawing', {
             x0: x0 / w,
             y0: y0 / h,
             x1: x1 / w,
             y1: y1 / h,
+            image:image
         });
     }
 
@@ -134,10 +131,16 @@ $(function () {
         context.setTransform(1, 0, 0, 1, 0, 0);
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     }
+
+    socket.on('drawing', function (data) {
+        onDrawingEvent(data)
+    });
     
-    function saveArea() {
-        //TODO send ajax to server
-
-    }
-
+    socket.on('load image',function (data) {
+        let image = new Image();
+        image.onload = function() {
+            context.drawImage(image, 0, 0);
+        };
+        image.src = data.image;
+    })
 });

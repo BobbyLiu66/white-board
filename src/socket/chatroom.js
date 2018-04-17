@@ -8,7 +8,7 @@ const io = require('socket.io')(server);
 let user_service = require('../service/user');
 
 let messageHistory = [];
-let rooms = {};
+let imageHistory = {};
 let users = {};
 
 io.on('connection', function (socket) {
@@ -37,6 +37,9 @@ io.on('connection', function (socket) {
                 });
                 socket.emit('load history', sendHistory);
             }
+            socket.emit('load image',{
+                image:imageHistory[socket.roomName]
+            })
         }
         io.in(socket.roomName).emit('create room', {
             roomName: data.roomName,
@@ -62,7 +65,7 @@ io.on('connection', function (socket) {
     });
 
     // when the client emits 'add user', this listens and executes
-    socket.on('add user', function (username, roomName = "default") {
+    socket.on('add user', function (username, roomName = "default",image) {
         if (addedUser) return;
         // we store the username in the socket session for this client
         users[username] = socket.id;
@@ -82,6 +85,10 @@ io.on('connection', function (socket) {
             });
             socket.emit('load history', sendHistory);
         }
+        //TODO add image
+        socket.emit('load image',{
+            image:imageHistory[socket.roomName]
+        });
 
         socket.broadcast.to(socket.roomName).emit('user joined', {
             username: socket.username,
@@ -94,7 +101,7 @@ io.on('connection', function (socket) {
     });
 
 
-    socket.on('check user', async function (username, pwd) {
+    socket.on('check user', async function (username, pwd,image) {
         let result = await user_service.checkUser(username, pwd);
         if (result.err) {
             socket.emit('login fail', result);
@@ -118,6 +125,9 @@ io.on('connection', function (socket) {
             });
             socket.emit('load history', sendHistory);
         }
+        socket.emit('load image',{
+            image:imageHistory[socket.roomName]
+        })
 
         socket.broadcast.to(socket.roomName).emit('user joined', {
             username: socket.username,
@@ -166,6 +176,9 @@ io.on('connection', function (socket) {
             });
             socket.emit('load history', sendHistory, socket.roomName);
         }
+        socket.emit('load image',{
+            image:imageHistory[socket.roomName]
+        })
     });
 
 
@@ -203,7 +216,11 @@ io.on('connection', function (socket) {
 
 
     //whiteboard
-    socket.on('drawing', (data) => socket.broadcast.to(socket.roomName).emit('drawing', data));
+    socket.on('drawing', (data) =>  {
+        imageHistory[socket.roomName] = data.image;
+
+        socket.to(socket.roomName).emit('drawing', data)
+    });
 });
 
 
