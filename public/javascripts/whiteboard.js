@@ -4,7 +4,6 @@ $(function () {
     const socket = window.socket;
     let canvas = window.canvas;
     let context = window.context;
-    let clear = document.getElementById('clear');
 
     let current = {};
     let drawing = false;
@@ -12,29 +11,31 @@ $(function () {
 
     $('#whiteboard').hide();
     $('.controls').hide();
-    $hidden.prop('value', 'display');
-    $hidden.html('Display Whiteboard');
+    $hidden.hide();
+    $hidden.prop('value', 'show');
+    $hidden.html('Show Whiteboard');
     $('.login.page .form').css("width", "100%");
     $('.page').css("width", "100%");
     $('.chatRoom').css("width", "100%");
 
     //Hidden display canvas
     $hidden.click(function () {
+        // hidden whiteboard
         if ($hidden.val() === 'hide') {
             $('#whiteboard').hide();
             $('.controls').hide();
-            $hidden.prop('value', 'display');
-            $hidden.html('Display Whiteboard');
+            $hidden.prop('value', 'show');
+            $hidden.html('Show Whiteboard');
             $('.login.page .form').css("width", "100%");
             $('.page').css("width", "100%");
             $('.chatRoom').css("width", "100%")
         }
-        else if ($hidden.val() === 'display') {
-            $('#whiteboard').show();
-            $('.controls').show();
+        // display whiteboard
+        else if ($hidden.val() === 'show') {
+            $('#whiteboard').fadeIn( "slow" );
+            $('.controls').fadeIn( "slow" );
             $hidden.prop('value', 'hide');
             $hidden.html('Hidden Whiteboard');
-            $('.login.page .form').css("width", "22%");
             $('.page').css("width", "22%");
             $('.chatRoom').css("width", "22%")
         }
@@ -46,7 +47,13 @@ $(function () {
     canvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
 
     //TODO get half of the online room user's permission then clear the whole area like invite friend
-    clear.addEventListener('click', clearArea, false);
+    $('#clear').click(function () {
+        socket.emit('clear area');
+        $(this).attr("disabled",true);
+        setTimeout(function () {
+            $(this).attr("disabled",false)
+        },6*1000)
+    });
 
     window.addEventListener('resize', onResize, false);
     onResize();
@@ -59,7 +66,6 @@ $(function () {
         context.lineWidth = lineWidth;
         context.stroke();
         context.closePath();
-
         if (!emit) {
             return;
         }
@@ -127,13 +133,7 @@ $(function () {
     // make the canvas fill its parent
     function onResize() {
         canvas.width = window.innerWidth * 0.75;
-        canvas.height = window.innerHeight;
-    }
-
-    function clearArea() {
-        // Use the identity matrix while clearing the canvas
-        context.setTransform(1, 0, 0, 1, 0, 0);
-        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        canvas.height = window.innerHeight * 0.9;
     }
 
     socket.on('drawing', function (data) {
@@ -148,5 +148,10 @@ $(function () {
         if (data.image) {
             image.src = data.image;
         }
+    });
+
+    socket.on('clear screen',function () {
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     })
 });

@@ -32,8 +32,9 @@ $(function () {
     $inviteFriend.hide();
     //events
     if (window.sessionStorage.username !== undefined) {
+        $('#hidden').fadeIn( "slow" );
         $loginPage.hide();
-        $chatPage.show();
+        $chatPage.fadeIn( "slow" );
         $loginPage.off('click');
         $currentInput = $inputMessage.focus();
         connected = true;
@@ -47,26 +48,28 @@ $(function () {
 
     //create room
     $('#newRoom').click(function () {
+        $('#hidden').hide();
         $('h3.title').text('Input your room name');
         $usernameInput.hide();
         $passwordInput.hide();
         $inviteFriend.hide();
-        $roomnameInput.show();
+        $roomnameInput.fadeIn( "slow" );
         $chatPage.fadeOut();
-        $loginPage.show();
+        $loginPage.fadeIn( "slow" );
         $roomnameInput.focus();
         roomState = true
     });
 
     //invite friend
     $('#invite').click(function () {
+        $('#hidden').hide();
         $('h3.title').text('Input your friend name');
         $usernameInput.hide();
         $passwordInput.hide();
         $roomnameInput.hide();
-        $inviteFriend.show();
+        $inviteFriend.fadeIn( "slow" );
         $chatPage.fadeOut();
-        $loginPage.show();
+        $loginPage.fadeIn( "slow" );
         $inviteFriend.focus();
         friendState = true
     });
@@ -166,6 +169,40 @@ $(function () {
 
         let $messageDiv = $('<li class="log"/>')
             .append($usernameDiv, message + options.roomName + " ", $accept, " or ", $decline);
+        addMessageElement($messageDiv);
+    }
+
+
+    function logAboutClear(message, options) {
+        let state = "default";
+        let $usernameDiv = $('<span/>')
+            .text(options.sponsor)
+            .css('color', getUsernameColor(options.sponsor));
+        let $accept = $('<button class="acceptOrDecline"/>').text("accept")
+            .click(function () {
+                state = "accept";
+                socket.emit('accept clear', {
+                    sponsor: options.sponsor
+                });
+                $(this).parent().children('button').attr("disabled", true)
+            });
+        let $decline = $('<button class="acceptOrDecline"/>').text("decline")
+            .click(function () {
+                state = "decline";
+                socket.emit('decline clear', {
+                    sponsor: options.sponsor
+                });
+                $(this).parent().children('button').attr("disabled", true)
+            });
+        // if no response after 1 minute click decline
+        setTimeout(function () {
+            if (state === "default") {
+                $decline.click()
+            }
+        }, 6 * 1000);
+
+        let $messageDiv = $('<li class="log"/>')
+            .append($usernameDiv, message + " ", $accept, " or ", $decline);
         addMessageElement($messageDiv);
     }
 
@@ -341,8 +378,9 @@ $(function () {
 
     // Whenever the server emits 'login', log the login message
     socket.on('login', function (data) {
+        $('#hidden').fadeIn( "slow" );
         $loginPage.fadeOut();
-        $chatPage.show();
+        $chatPage.fadeIn( "slow" );
         $loginPage.off('click');
         $currentInput = $inputMessage.focus();
         window.sessionStorage.username = data.username;
@@ -405,34 +443,36 @@ $(function () {
 
         log('chat history loaded')
     });
-    socket.on('clear screen',function () {
+    socket.on('clear screen', function () {
         $('.messages > li').remove();
     });
 
     socket.on('create room', function (data) {
         window.sessionStorage.roomName = data.roomName;
+        $('#hidden').fadeIn( "slow" );
         $loginPage.fadeOut();
-        $chatPage.show();
+        $chatPage.fadeIn( "slow" );
         $loginPage.off('click');
         socket.emit('user left', data);
         roomState = false;
-        log(data.roomName + " "+ data.message)
+        log(data.roomName + " " + data.message)
     });
 
     socket.on('invite user', function (data) {
         inviteFriend = data.inviteName;
         $loginPage.fadeOut();
-        $chatPage.show();
+        $chatPage.fadeIn( "slow" );
         $loginPage.off('click');
         friendState = false;
-        logWithStyle(' invite you to join room ', data)
+        logWithStyle(' invite you to join room ', data, 'invite')
     });
 
 
     socket.on('invite success', function (data) {
+        $('#hidden').fadeIn( "slow" );
         inviteFriend = data.inviteName;
         $loginPage.fadeOut();
-        $chatPage.show();
+        $chatPage.fadeIn( "slow" );
         $loginPage.off('click');
         friendState = false;
         log('invite ' + inviteFriend + ' success')
@@ -476,13 +516,37 @@ $(function () {
     socket.on('reconnect', function () {
         log('you have been reconnected');
         if (window.sessionStorage.username) {
-            socket.emit('add user', window.sessionStorage.username,window.sessionStorage.roomName);
+            socket.emit('add user', window.sessionStorage.username, window.sessionStorage.roomName);
         }
     });
-
 
     socket.on('reconnect_error', function () {
         log('attempt to reconnect has failed');
     });
+
+    //whiteboard
+    socket.on('clear area', function (data) {
+        logAboutClear(' want to clear the area', data)
+    });
+
+    socket.on('clear success', function () {
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        log('area clear success')
+    });
+
+    socket.on('clear fail', function () {
+        log('area clear fail')
+    });
+
+
+    socket.on('accept clear', function (data) {
+        log(data.username + ' agree clear')
+    });
+
+
+    socket.on('decline clear', function (data) {
+        log(data.username + ' decline clear')
+    })
 
 });

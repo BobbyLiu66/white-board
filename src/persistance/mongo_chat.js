@@ -115,18 +115,20 @@ exports.updateRoomUser = async (roomName, user) => {
 
 exports.countAcceptedNum = async (roomName) => {
     let client = await mongo_client;
-    let userResult = await client.db('weather').collection('chat_room').find({_id:roomName}).catch((err)=>{return{errmsg:err}})
+    let userResult = await client.db('weather').collection('chat_room').findOne({_id:roomName});
+    //TODO add default user info to db
     let users = userResult.participants;
     users.push(userResult.owner);
     let onlineNum = [];
-    return _.forEach(users,(user)=>{
-        onlineNum.push(client.db('weather').collection('chat_room').findOne({_id:user,status:"login"}).catch((err)=>{return{errmsg:err}}))
-    }).then(()=>{
-        return {
-            message:onlineNum.length
+    for(let user of users){
+        let res = await client.db('weather').collection('chat_user').findOne({_id:user,status:"login"}).catch((err)=>{return{errmsg:err}});
+        if(res !== null){
+            onlineNum.push(res)
         }
-    })
-
+    }
+    return {
+        message:onlineNum.length
+    };
 };
 
 
