@@ -18,25 +18,27 @@
                 <button class="clearWhiteboard clearBoard">Clear Board</button>
             </li>
             <li class="whiteboardControllers control dropDown">
-                <button class="drop">Line Width</button>
-                <ul>
-                    <li><button class="btnDrop width1" value="1">1</button></li>
-                    <li><button class="btnDrop width3" value="3">3</button></li>
-                    <li><button class="btnDrop width7" value="5">5</button></li>
-                    <li><button class="btnDrop width9" value="7">7</button></li>
-                    <li><button class="btnDrop width11" value="9">9</button></li>
-                </ul>
+                <span>LineWidth:<select class="selWidth">
+                    <option value="1">1</option>
+                    <option value="3">3</option>
+                    <option value="5" selected="selected">5</option>
+                    <option value="7">7</option>
+                    <option value="9">9</option>
+                    <option value="11">11</option>
+                        </select>
+                </span>
             </li>
             <li class="whiteboardControllers control dropDown">
-                <button class="drop">Color</button>
-                <ul class="btnDrop">
-                    <li><button class=" black" value="black">BLACK</button></li>
-                    <li><button class=" blue" value="blue">BLUE</button></li>
-                    <li><button class=" red" value="red">RED</button></li>
-                    <li><button class=" green" value="green">GREEN</button></li>
-                    <li><button class=" yellow" value="yellow">YELLOW</button></li>
-                    <li><button class=" gray" value="gray">GRAY</button></li>
-                </ul>
+                <span>Color:
+                <select class="selColor">
+                    <option value="black">black</option>
+                    <option value="blue" selected="selected">blue</option>
+                    <option value="red">red</option>
+                    <option value="green">green</option>
+                    <option value="yellow">yellow</option>
+                    <option value="gray">gray</option>
+                </select>
+                    </span>
             </li>
 
             <li class="chatRoomControllers">
@@ -75,13 +77,15 @@
                                 <input id="username" class="input" type="text" maxlength="10" placeholder="nickname"/>
                             </li>
                             <li>
-                                <input id="password" class="input" type="password" maxlength="10" placeholder="password"/>
+                                <input id="password" class="input" type="password" maxlength="10"
+                                       placeholder="password"/>
                             </li>
                             <li>
                                 <input id="roomName" class="input" type="text" placeholder="room name" maxlength="20"/>
                             </li>
                             <li>
-                                <input id="friendName" class="input" type="text" placeholder="friend nick name" maxlength="10"/>
+                                <input id="friendName" class="input" type="text" placeholder="friend nick name"
+                                       maxlength="10"/>
                             </li>
                         </ul>
                     </div>

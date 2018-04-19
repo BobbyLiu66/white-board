@@ -181,8 +181,8 @@ $(function () {
             return;
         }
         drawing = false;
-        let strokeStyle = $('#selColor').val();
-        let lineWidth = $('#selWidth').val();
+        let strokeStyle = $('.selColor').val();
+        let lineWidth = $('.selWidth').val();
         drawLine(current.x, current.y, e.clientX, e.clientY, true, strokeStyle, lineWidth);
     }
 
@@ -190,8 +190,8 @@ $(function () {
         if (!drawing) {
             return;
         }
-        let strokeStyle = $('#selColor').val();
-        let lineWidth = $('#selWidth').val();
+        let strokeStyle = $('.selColor').val();
+        let lineWidth = $('.selWidth').val();
         drawLine(current.x, current.y, e.clientX, e.clientY, true, strokeStyle, lineWidth);
         current.x = e.clientX;
         current.y = e.clientY;

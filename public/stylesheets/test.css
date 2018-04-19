@@ -46,7 +46,8 @@ ul {
     float: right;
 }
 
-.nav button {
+.nav button, .dropDown span{
+    display: block;
     min-width: 80px;
     background-color: #008CBA;
     border: none;
