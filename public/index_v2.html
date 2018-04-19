@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Chat Room</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div>
+
+    <div class="nav">
+        <ul>
+            <li class="whiteboardControllers hideDisplay">
+                <button class="hiddenWhiteboard" value="hide">Hidden Board</button>
+            </li>
+            <li class="whiteboardControllers control">
+                <button class="clearWhiteboard">Clear Board</button>
+            </li>
+
+
+            <li class="whiteboardControllers control dropDown">
+                <button class="drop">Line Width</button>
+                <ul>
+                    <li><button class="btnDrop width1" value="1">1</button></li>
+                    <li><button class="btnDrop width3" value="3">3</button></li>
+                    <li><button class="btnDrop width7" value="5">5</button></li>
+                    <li><button class="btnDrop width9" value="7">7</button></li>
+                    <li><button class="btnDrop width11" value="9">9</button></li>
+                </ul>
+            </li>
+
+            <li class="whiteboardControllers control dropDown">
+                <button class="drop">Color</button>
+                <ul class="btnDrop">
+                    <li><button class=" black" value="black">BLACK</button></li>
+                    <li><button class=" blue" value="blue">BLUE</button></li>
+                    <li><button class=" red" value="red">RED</button></li>
+                    <li><button class=" green" value="green">GREEN</button></li>
+                    <li><button class=" yellow" value="yellow">YELLOW</button></li>
+                    <li><button class=" gray" value="gray">GRAY</button></li>
+                </ul>
+            </li>
+
+
+            <li class="chatRoomControllers">
+                <button class="clearChat">Clear Chat</button>
+            </li>
+            <li class="chatRoomControllers">
+                <button class="newRoom">Create/Join Room</button>
+            </li>
+            <li class="chatRoomControllers">
+                <button class="inviteFriend">Invite Friend</button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="row">
+        <div class="left">
+            <canvas class="canvas"></canvas>
+        </div>
+
+        <div class="right chatRoom">
+            <ul class="pages">
+
+                <li class="chat page">
+                    <div class="chatArea">
+                        <ul class="messages"></ul>
+                    </div>
+                    <input class="inputMessage" placeholder="Type here..."/>
+                </li>
+
+                <li class="login page">
+                    <div class="form">
+                        <ul>
+                            <li>
+                                <h3 class="title">What's your nickname?</h3>
+                            </li>
+                            <li>
+                                <input id="username" class="input" type="text" maxlength="10" placeholder="nickname"/>
+                            </li>
+                            <li>
+                                <input id="password" class="input" type="password" maxlength="10" placeholder="password"/>
+                            </li>
+                            <li>
+                                <input id="roomName" class="input" type="text" placeholder="room name" maxlength="20"/>
+                            </li>
+                            <li>
+                                <input id="friendName" class="input" type="text" placeholder="friend nick name" maxlength="10"/>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
