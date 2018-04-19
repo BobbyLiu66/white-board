@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Chat Room</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="stylesheets/test.css">
 </head>
 <body>
 <div>
@@ -12,13 +12,11 @@
     <div class="nav">
         <ul>
             <li class="whiteboardControllers hideDisplay">
-                <button class="hiddenWhiteboard" value="hide">Hidden Board</button>
+                <button class="hiddenWhiteboard" value="show">Show Board</button>
             </li>
             <li class="whiteboardControllers control">
                 <button class="clearWhiteboard">Clear Board</button>
             </li>
-
-
             <li class="whiteboardControllers control dropDown">
                 <button class="drop">Line Width</button>
                 <ul>
@@ -29,7 +27,6 @@
                     <li><button class="btnDrop width11" value="9">9</button></li>
                 </ul>
             </li>
-
             <li class="whiteboardControllers control dropDown">
                 <button class="drop">Color</button>
                 <ul class="btnDrop">
@@ -41,7 +38,6 @@
                     <li><button class=" gray" value="gray">GRAY</button></li>
                 </ul>
             </li>
-
 
             <li class="chatRoomControllers">
                 <button class="clearChat">Clear Chat</button>
@@ -57,12 +53,11 @@
 
     <div class="row">
         <div class="left">
-            <canvas class="canvas"></canvas>
+            <canvas id="canvas"></canvas>
         </div>
 
         <div class="right chatRoom">
             <ul class="pages">
-
                 <li class="chat page">
                     <div class="chatArea">
                         <ul class="messages"></ul>
@@ -95,6 +90,12 @@
         </div>
     </div>
 </div>
+
+
+<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="javascripts/chatroom_v2.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js"></script>
 
 </body>
 </html>

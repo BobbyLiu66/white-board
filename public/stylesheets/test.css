@@ -33,7 +33,7 @@ ul {
     overflow: hidden;
 }
 
-.nav ul {
+.nav {
     background-color: #008CBA;
 }
 
@@ -86,19 +86,18 @@ ul {
 .left {
     float: left;
     height: 100%;
-    width: 75%;
+    width: 0;
 }
-.row .canvas{
+
+#canvas{
     border: 2px solid black;
     background-color: white;
-    width: 100%;
-    height: 100%;
 }
 
 /* Right column */
 .right {
     float: right;
-    width: 25%;
+    width: 100%;
     height: 100%;
 }
 
@@ -111,7 +110,6 @@ ul {
 
 /* login page*/
 .login.page {
-    display: none;
     background-color: #000;
     width: 100%;
     height: 100%;
@@ -160,7 +158,7 @@ ul {
     height: 100%;
     margin: 0;
     padding: 0;
-    width: 50%;
+    width: 100%;
 }
 
 .page {
@@ -171,6 +169,8 @@ ul {
 /* Chat page */
 
 .chat.page {
+    width: 100%;
+    display: none;
 }
 
 .inputMessage {
@@ -178,12 +178,12 @@ ul {
     border: 7px solid gray;
     bottom: 0;
     height: 40px;
-    left: 75%;
+    left: 0;
     outline: none;
     padding-left: 10px;
     padding-right: 10px;
     position: fixed;
-    width: 25%;
+    width: 100%;
     overflow: hidden;
     right: 0;
 }
@@ -195,12 +195,17 @@ ul {
     padding-bottom: 60px;
 }
 
+li.message{
+    text-align: left;
+}
+
 .messages {
     height: 88%;
     margin: 0;
     overflow-y: scroll;
     padding: 10px 20px 10px 20px;
 }
+
 
 .message.typing .messageBody {
     color: gray;
