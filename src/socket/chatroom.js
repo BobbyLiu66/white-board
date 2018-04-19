@@ -43,6 +43,7 @@ io.on('connection', function (socket) {
                 socket.emit('load history', sendHistory);
             }
             socket.emit('load image', {
+                roomName: socket.roomName,
                 image: imageHistory[socket.roomName]
             })
         }
@@ -92,6 +93,7 @@ io.on('connection', function (socket) {
         }
 
         socket.emit('load image', {
+            roomName:socket.roomName,
             image: imageHistory[socket.roomName]
         });
 
@@ -131,6 +133,7 @@ io.on('connection', function (socket) {
             socket.emit('load history', sendHistory);
         }
         socket.emit('load image', {
+            roomName:socket.roomName,
             image: imageHistory[socket.roomName]
         });
 
@@ -182,6 +185,7 @@ io.on('connection', function (socket) {
             socket.emit('load history', sendHistory, socket.roomName);
         }
         socket.emit('load image', {
+            roomName:socket.roomName,
             image: imageHistory[socket.roomName]
         })
     });
@@ -221,8 +225,10 @@ io.on('connection', function (socket) {
 
     // whiteboard
     socket.on('drawing', (data) => {
-        imageHistory[socket.roomName] = data.image;
-        socket.to(socket.roomName).emit('drawing', data)
+        if(socket.roomName !== "default"){
+            imageHistory[socket.roomName] = data.image;
+            socket.to(socket.roomName).emit('drawing', data)
+        }
     });
 
     // clear area request

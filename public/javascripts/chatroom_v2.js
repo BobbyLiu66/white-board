@@ -39,7 +39,6 @@ $(function () {
     let $loginMsg = $('h3.title');
     let $hiddenBtn = $('.hideDisplay button');
 
-    //TODO
     $roomNameInput.hide();
     $inviteFriend.hide();
     $navControl.hide();
@@ -221,7 +220,6 @@ $(function () {
     function setUsername() {
         let nickname = cleanInput($usernameInput.val().trim());
         let password = cleanInput($passwordInput.val().trim());
-        //TODO login success there should be a block say something
         if (nickname && password) {
             socket.emit('check user', nickname, password);
         }
@@ -235,8 +233,7 @@ $(function () {
         let roomID = cleanInput($roomNameInput.val().trim());
         if (roomID === window.sessionStorage.roomName) {
             alert('You have already in this room');
-            $roomnameInput.val('');
-            $roomnameInput.focus()
+            $roomNameInput.val('').focus();
         }
         else if (roomID) {
             // Tell the server your username and roomName
@@ -532,9 +529,20 @@ $(function () {
         connected = true;
         // Display the welcome message
         const message = "Welcome to Chat " + data.roomName;
-        log(message, {
-            prepend: true
-        });
+
+        if(data.roomName === "default"){
+            log("Default room cannot use cooperate whiteboard", {
+                prepend: true
+            });
+            log(message, {
+                prepend: true
+            });
+        }
+        else {
+            log(message, {
+                prepend: true
+            });
+        }
     });
 
     socket.on('login fail', function (data) {
@@ -691,12 +699,15 @@ $(function () {
     });
 
     socket.on('load image', function (data) {
-        let image = new Image();
-        image.onload = function () {
-            context.drawImage(image, 0, 0);
-        };
-        if (data.image) {
-            image.src = data.image;
+        if(data.roomName !== "default"){
+            console.log(data.roomName);
+            let image = new Image();
+            image.onload = function () {
+                context.drawImage(image, 0, 0);
+            };
+            if (data.image) {
+                image.src = data.image;
+            }
         }
     });
 
