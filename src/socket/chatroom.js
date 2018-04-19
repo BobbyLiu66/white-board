@@ -64,9 +64,14 @@ io.on('connection', function (socket) {
             roomName: socket.roomName,
             messageTime: new Date()
         });
-        io.in(socket.roomName).emit('new message', {
+        socket.broadcast.to(socket.roomName).emit('new message', {
             username: socket.username,
             message: data
+        });
+        socket.emit('new message',{
+            username: socket.username,
+            message: data,
+            oneself:true
         })
     });
 

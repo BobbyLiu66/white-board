@@ -201,6 +201,10 @@ li.message{
     text-align: left;
 }
 
+li.messageOneself{
+    text-align: right;
+}
+
 .messages {
     height: 88%;
     margin: 0;

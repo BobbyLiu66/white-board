@@ -91,7 +91,7 @@ $(function () {
 
     //create room
     $('.newRoom').click(() => {
-        if($hiddenBtn.val() === "hide"){
+        if ($hiddenBtn.val() === "hide") {
             hideLeft();
         }
 
@@ -110,8 +110,8 @@ $(function () {
     });
 
     //invite friend
-    $('.inviteFriend').click( ()=> {
-        if($hiddenBtn.val() === "hide"){
+    $('.inviteFriend').click(() => {
+        if ($hiddenBtn.val() === "hide") {
             hideLeft();
         }
 
@@ -341,7 +341,7 @@ $(function () {
 
     //TODO split broadcast to two part
     // Adds the visual chat message to the message list
-    function addChatMessage(data, options, oneself) {
+    function addChatMessage(data, options) {
         // Don't fade the message in if there is an 'X was typing'
         let $typingMessages = getTypingMessages(data);
         options = options || {};
@@ -354,16 +354,21 @@ $(function () {
             .text(data.username)
             .css('color', getUsernameColor(data.username));
         let $messageBodyDiv = $('<span class="messageBody">')
-            .text(data.message);
+            .text(data.message + " ");
 
         let typingClass = data.typing ? 'typing' : '';
-        let $messageDiv = $('<li class="message"/>')
-            .data('username', data.username)
-            .addClass(typingClass);
-        if (oneself) {
+        let $messageDiv;
+        if (data.oneself) {
+            $messageDiv = $('<li class="messageOneself"/>')
+                .data('username', data.username)
+                .addClass(typingClass);
             $messageDiv.append($messageBodyDiv, $usernameDiv)
         }
         else {
+            $("li.message").css({"text-align": "left"});
+            $messageDiv = $('<li class="message"/>')
+                .data('username', data.username)
+                .addClass(typingClass);
             $messageDiv.append($usernameDiv, $messageBodyDiv);
         }
 
@@ -376,11 +381,20 @@ $(function () {
             .text(data.username)
             .css('color', getUsernameColor(data.username));
         let $messageBodyDiv = $('<span class="messageBody">')
-            .text(data.message);
+            .text(data.message+" ");
 
-        let $messageDiv = $('<li class="message"/>')
-            .data('username', data.username)
-            .append($usernameDiv, $messageBodyDiv);
+        let $messageDiv;
+        if (data.oneself) {
+            $messageDiv = $('<li class="messageOneself"/>')
+                .data('username', data.username);
+            $messageDiv.append($messageBodyDiv, $usernameDiv)
+        }
+        else {
+            $("li.message").css({"text-align": "left"});
+            $messageDiv = $('<li class="message"/>')
+                .data('username', data.username);
+            $messageDiv.append($usernameDiv, $messageBodyDiv);
+        }
 
         addMessageElement($messageDiv, options);
     }
@@ -474,7 +488,7 @@ $(function () {
         return COLORS[index];
     }
 
-    function hideLeft(){
+    function hideLeft() {
         $('#canvas').hide();
         $navControl.hide();
         $(".left").css({"width": "0"});
@@ -484,7 +498,7 @@ $(function () {
         $(".pages").css({"width": "100%"})
     }
 
-    function showLeft(){
+    function showLeft() {
         $('#canvas').show();
         $navControl.show();
         $(".left").css({"width": "75%"});
@@ -518,7 +532,7 @@ $(function () {
         // click esc go back
         if (event.which === 27) {
             $hiddenBtn.attr("disabled", false);
-            if($hiddenBtn.val() === "hide"){
+            if ($hiddenBtn.val() === "hide") {
                 showLeft();
             }
             $loginPage.hide();
@@ -551,7 +565,7 @@ $(function () {
         // Display the welcome message
         const message = "Welcome to Chat " + data.roomName;
 
-        if(data.roomName === "default"){
+        if (data.roomName === "default") {
             log("Default room cannot use cooperate whiteboard", {
                 prepend: true
             });
@@ -607,6 +621,10 @@ $(function () {
                 log(messageTime.getHours() + ":" + minutes)
             }
             flag = false;
+            console.log(window.sessionStorage.username,value.username);
+            if(value.username === window.sessionStorage.username){
+                value.oneself = true
+            }
             loadChatMessage(value)
         });
 
@@ -617,7 +635,7 @@ $(function () {
     });
 
     socket.on('create room', function (data) {
-        if($hiddenBtn.val() === "hide"){
+        if ($hiddenBtn.val() === "hide") {
             showLeft();
         }
         $hiddenBtn.attr("disabled", false);
@@ -642,7 +660,7 @@ $(function () {
 
 
     socket.on('invite success', function (data) {
-        if($hiddenBtn.val() === "hide"){
+        if ($hiddenBtn.val() === "hide") {
             showLeft();
         }
         $hiddenBtn.attr("disabled", false);
@@ -729,8 +747,7 @@ $(function () {
     });
 
     socket.on('load image', function (data) {
-        if(data.roomName !== "default"){
-            console.log(data.roomName);
+        if (data.roomName !== "default") {
             let image = new Image();
             image.onload = function () {
                 context.drawImage(image, 0, 0);
@@ -741,7 +758,7 @@ $(function () {
         }
     });
 
-    socket.on('clear whiteboard screen',function () {
+    socket.on('clear whiteboard screen', function () {
         context.setTransform(1, 0, 0, 1, 0, 0);
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     });
