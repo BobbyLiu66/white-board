@@ -45,64 +45,77 @@ $(function () {
     $navControl.hide();
     $('#canvas').hide();
     onResize();
-    //events
+
     if (window.sessionStorage.username !== undefined) {
         $loginPage.hide();
-        $chatPage.fadeIn( "slow" );
+        $chatPage.fadeIn("slow");
         $loginPage.off('click');
         $currentInput = $inputMessage.focus();
         connected = true;
         socket.emit('add user', window.sessionStorage.username, window.sessionStorage.roomName)
     }
 
+    //events
+    canvas.addEventListener('mousedown', onMouseDown, false);
+    canvas.addEventListener('mouseup', onMouseUp, false);
+    canvas.addEventListener('mouseout', onMouseUp, false);
+    canvas.addEventListener('mousemove', throttle(onMouseMove, 10), false);
+    window.addEventListener('resize', onResize, false);
     // Click events
+    $(".clearBoard").click(() => {
+        socket.emit('clear area');
+        $(this).attr("disabled", true);
+        setTimeout(() => {
+            $(this).attr("disabled", false)
+        }, 6 * 1000)
+    });
 
     //hidden display canvas
-    $hiddenBtn.click(()=>{
-        if($hiddenBtn.val() === "hide"){
+    $hiddenBtn.click(() => {
+        if ($hiddenBtn.val() === "hide") {
             $('#canvas').hide();
             $navControl.hide();
-            $hiddenBtn.prop("value","show");
+            $hiddenBtn.prop("value", "show");
             $hiddenBtn.html("Show Board");
-            $(".left").css({"width":"0"});
-            $(".right").css({"width":"100%"});
-            $loginPage.css({"width":"100%"});
-            $(".login.page .form").css({"width":"100%"});
-            $chatPage.css({"width":"100%"});
-            $inputMessage.css({"width":"100%","left":"0"});
-            $(".pages").css({"width":"100%"})
+            $(".left").css({"width": "0"});
+            $(".right").css({"width": "100%"});
+            $loginPage.css({"width": "100%"});
+            $(".login.page .form").css({"width": "100%"});
+            $chatPage.css({"width": "100%"});
+            $inputMessage.css({"width": "100%", "left": "0"});
+            $(".pages").css({"width": "100%"})
         }
-        else if($hiddenBtn.val() === "show"){
+        else if ($hiddenBtn.val() === "show") {
             $('#canvas').show();
             $navControl.show();
-            $hiddenBtn.prop("value","hide");
+            $hiddenBtn.prop("value", "hide");
             $hiddenBtn.html("Hide Board");
-            $(".left").css({"width":"75%"});
-            $(".right").css({"width":"25%"});
-            $loginPage.css({"width":"25%"});
-            $(".login.page .form").css({"width":"25%"});
-            $chatPage.css({"width":"25%"});
-            $inputMessage.css({"width":"25%","left":"75%"});
-            $(".pages").css({"width":"25%"})
+            $(".left").css({"width": "75%"});
+            $(".right").css({"width": "25%"});
+            $loginPage.css({"width": "25%"});
+            $(".login.page .form").css({"width": "25%"});
+            $chatPage.css({"width": "25%"});
+            $inputMessage.css({"width": "25%", "left": "75%"});
+            $(".pages").css({"width": "25%"})
         }
     });
 
 
     //clear message
-    $('.clearChat').click( ()=> {
+    $('.clearChat').click(() => {
         $('.messages > li').remove()
     });
 
     //create room
-    $('.newRoom').click( () => {
+    $('.newRoom').click(() => {
         $navControl.hide();
         $loginMsg.text('Input Room Name');
         $usernameInput.hide();
         $passwordInput.hide();
         $inviteFriend.hide();
-        $roomNameInput.fadeIn( "slow" );
+        $roomNameInput.fadeIn("slow");
         $chatPage.fadeOut();
-        $loginPage.fadeIn( "slow" );
+        $loginPage.fadeIn("slow");
         $roomNameInput.focus();
         roomState = true
     });
@@ -114,9 +127,9 @@ $(function () {
         $usernameInput.hide();
         $passwordInput.hide();
         $roomNameInput.hide();
-        $inviteFriend.fadeIn( "slow" );
+        $inviteFriend.fadeIn("slow");
         $chatPage.fadeOut();
-        $loginPage.fadeIn( "slow" );
+        $loginPage.fadeIn("slow");
         $inviteFriend.focus();
         friendState = true
     });
@@ -130,6 +143,79 @@ $(function () {
     $inputMessage.click(function () {
         $inputMessage.focus();
     });
+
+    function drawLine(x0, y0, x1, y1, emit, strokeStyle, lineWidth) {
+        context.beginPath();
+        context.moveTo(x0, y0);
+        context.lineTo(x1, y1);
+        context.strokeStyle = strokeStyle;
+        context.lineWidth = lineWidth;
+        context.stroke();
+        context.closePath();
+        if (!emit) {
+            return;
+        }
+        let w = canvas.width;
+        let h = canvas.height;
+        let image = canvas.toDataURL();
+
+        socket.emit('drawing', {
+            x0: x0 / w,
+            y0: y0 / h,
+            x1: x1 / w,
+            y1: y1 / h,
+            image: image,
+            strokeStyle: strokeStyle,
+            lineWidth: lineWidth,
+        });
+    }
+
+    function onMouseDown(e) {
+        drawing = true;
+        current.x = e.clientX;
+        current.y = e.clientY;
+    }
+
+    function onMouseUp(e) {
+        if (!drawing) {
+            return;
+        }
+        drawing = false;
+        let strokeStyle = $('#selColor').val();
+        let lineWidth = $('#selWidth').val();
+        drawLine(current.x, current.y, e.clientX, e.clientY, true, strokeStyle, lineWidth);
+    }
+
+    function onMouseMove(e) {
+        if (!drawing) {
+            return;
+        }
+        let strokeStyle = $('#selColor').val();
+        let lineWidth = $('#selWidth').val();
+        drawLine(current.x, current.y, e.clientX, e.clientY, true, strokeStyle, lineWidth);
+        current.x = e.clientX;
+        current.y = e.clientY;
+    }
+
+    // limit the number of events per second
+    function throttle(callback, delay) {
+        let previousCall = new Date().getTime();
+        return function () {
+            let time = new Date().getTime();
+
+            if ((time - previousCall) >= delay) {
+                previousCall = time;
+                callback.apply(null, arguments);
+            }
+        };
+    }
+
+    function onDrawingEvent(data) {
+        let w = canvas.width;
+        let h = canvas.height;
+        drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, false, data.strokeStyle, data.lineWidth);
+    }
+
 
     // Sets the client's username
     function setUsername() {
@@ -281,10 +367,10 @@ $(function () {
         let $messageDiv = $('<li class="message"/>')
             .data('username', data.username)
             .addClass(typingClass);
-        if(oneself){
+        if (oneself) {
             $messageDiv.append($messageBodyDiv, $usernameDiv)
         }
-        else{
+        else {
             $messageDiv.append($usernameDiv, $messageBodyDiv);
         }
 
@@ -417,7 +503,7 @@ $(function () {
         }
 
         // click esc go back
-        if(event.which === 27){
+        if (event.which === 27) {
             $loginPage.hide();
             $navControl.fadeIn("slow");
             $chatPage.fadeIn("slow");
@@ -436,7 +522,7 @@ $(function () {
     // Whenever the server emits 'login', log the login message
     socket.on('login', function (data) {
         $loginPage.fadeOut();
-        $chatPage.fadeIn( "slow" );
+        $chatPage.fadeIn("slow");
         $loginPage.off('click');
         $currentInput = $inputMessage.focus();
         window.sessionStorage.username = data.username;
@@ -504,7 +590,7 @@ $(function () {
     socket.on('create room', function (data) {
         window.sessionStorage.roomName = data.roomName;
         $loginPage.fadeOut();
-        $chatPage.fadeIn( "slow" );
+        $chatPage.fadeIn("slow");
         $loginPage.off('click');
         socket.emit('user left', data);
         roomState = false;
@@ -514,7 +600,7 @@ $(function () {
     socket.on('invite user', function (data) {
         inviteFriend = data.inviteName;
         $loginPage.fadeOut();
-        $chatPage.fadeIn( "slow" );
+        $chatPage.fadeIn("slow");
         $loginPage.off('click');
         friendState = false;
         logWithStyle(' invite you to join room ', data, 'invite')
@@ -524,7 +610,7 @@ $(function () {
     socket.on('invite success', function (data) {
         inviteFriend = data.inviteName;
         $loginPage.fadeOut();
-        $chatPage.fadeIn( "slow" );
+        $chatPage.fadeIn("slow");
         $loginPage.off('click');
         friendState = false;
         log('invite ' + inviteFriend + ' success')
@@ -592,19 +678,36 @@ $(function () {
         log('area clear fail')
     });
 
-
     socket.on('accept clear', function (data) {
         log(data.username + ' agree clear')
     });
-
 
     socket.on('decline clear', function (data) {
         log(data.username + ' decline clear')
     });
 
+    socket.on('drawing', function (data) {
+        onDrawingEvent(data)
+    });
+
+    socket.on('load image', function (data) {
+        let image = new Image();
+        image.onload = function () {
+            context.drawImage(image, 0, 0);
+        };
+        if (data.image) {
+            image.src = data.image;
+        }
+    });
+
+    socket.on('clear whiteboard screen',function () {
+        context.setTransform(1, 0, 0, 1, 0, 0);
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+    });
+
 
     function onResize() {
-        canvas.width = window.innerWidth * 0.74;
-        canvas.height = window.innerHeight * 0.89;
+        canvas.width = window.innerWidth * 0.745;
+        canvas.height = window.innerHeight;
     }
 });

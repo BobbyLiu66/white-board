@@ -227,16 +227,22 @@ io.on('connection', function (socket) {
 
     // clear area request
     socket.on('clear area', async () => {
-        let result = await user_service.findOnlineNum(socket.roomName);
-        if (result.message) {
-            acceptedNum[socket.roomName] = result.message;
-            //TODO implement send message to each user in front end
-            socket.broadcast.to(socket.roomName).emit('clear area', {
-                sponsor: socket.username
-            })
+        if(socket.roomName === "default"){
+            //clear screen
+            socket.emit('clear whiteboard screen');
         }
         else {
-            socket.emit('invite fail', result.err)
+            let result = await user_service.findOnlineNum(socket.roomName);
+            if (result.message) {
+                acceptedNum[socket.roomName] = result.message;
+                //TODO implement send message to each user in front end
+                socket.broadcast.to(socket.roomName).emit('clear area', {
+                    sponsor: socket.username
+                })
+            }
+            else {
+                socket.emit('invite fail', result.err)
+            }
         }
     });
 
