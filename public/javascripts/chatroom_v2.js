@@ -72,30 +72,14 @@ $(function () {
     //hidden display canvas
     $hiddenBtn.click(() => {
         if ($hiddenBtn.val() === "hide") {
-            $('#canvas').hide();
-            $navControl.hide();
             $hiddenBtn.prop("value", "show");
             $hiddenBtn.html("Show Board");
-            $(".left").css({"width": "0"});
-            $(".right").css({"width": "100%"});
-            $loginPage.css({"width": "100%"});
-            $(".login.page .form").css({"width": "100%"});
-            $chatPage.css({"width": "100%"});
-            $inputMessage.css({"width": "100%", "left": "0"});
-            $(".pages").css({"width": "100%"})
+            hideLeft()
         }
         else if ($hiddenBtn.val() === "show") {
-            $('#canvas').show();
-            $navControl.show();
             $hiddenBtn.prop("value", "hide");
             $hiddenBtn.html("Hide Board");
-            $(".left").css({"width": "75%"});
-            $(".right").css({"width": "25%"});
-            $loginPage.css({"width": "25%"});
-            $(".login.page .form").css({"width": "25%"});
-            $chatPage.css({"width": "25%"});
-            $inputMessage.css({"width": "25%", "left": "75%"});
-            $(".pages").css({"width": "25%"})
+            showLeft()
         }
     });
 
@@ -107,6 +91,11 @@ $(function () {
 
     //create room
     $('.newRoom').click(() => {
+        if($hiddenBtn.val() === "hide"){
+            hideLeft();
+        }
+
+        $hiddenBtn.attr("disabled", true);
         $navControl.hide();
         $loginMsg.text('Input Room Name');
         $usernameInput.hide();
@@ -116,11 +105,17 @@ $(function () {
         $chatPage.fadeOut();
         $loginPage.fadeIn("slow");
         $roomNameInput.focus();
-        roomState = true
+        roomState = true;
+        friendState = false
     });
 
     //invite friend
-    $('.inviteFriend').click(function () {
+    $('.inviteFriend').click( ()=> {
+        if($hiddenBtn.val() === "hide"){
+            hideLeft();
+        }
+
+        $hiddenBtn.attr("disabled", true);
         $navControl.hide();
         $loginMsg.text("Input Your Friend's Name");
         $usernameInput.hide();
@@ -130,6 +125,7 @@ $(function () {
         $chatPage.fadeOut();
         $loginPage.fadeIn("slow");
         $inviteFriend.focus();
+        roomState = false;
         friendState = true
     });
 
@@ -478,6 +474,26 @@ $(function () {
         return COLORS[index];
     }
 
+    function hideLeft(){
+        $('#canvas').hide();
+        $navControl.hide();
+        $(".left").css({"width": "0"});
+        $(".right").css({"width": "100%"});
+        $chatPage.css({"width": "100%"});
+        $inputMessage.css({"width": "100%", "left": "0"});
+        $(".pages").css({"width": "100%"})
+    }
+
+    function showLeft(){
+        $('#canvas').show();
+        $navControl.show();
+        $(".left").css({"width": "75%"});
+        $(".right").css({"width": "25%"});
+        $chatPage.css({"width": "25%"});
+        $inputMessage.css({"width": "25%", "left": "75%"});
+        $(".pages").css({"width": "25%"})
+    }
+
     // Keyboard events
     $window.keydown(function (event) {
         // When the client hits ENTER on their keyboard
@@ -501,6 +517,10 @@ $(function () {
 
         // click esc go back
         if (event.which === 27) {
+            $hiddenBtn.attr("disabled", false);
+            if($hiddenBtn.val() === "hide"){
+                showLeft();
+            }
             $loginPage.hide();
             $navControl.fadeIn("slow");
             $chatPage.fadeIn("slow");
@@ -518,6 +538,7 @@ $(function () {
 
     // Whenever the server emits 'login', log the login message
     socket.on('login', function (data) {
+        $hiddenBtn.attr("disabled", false);
         $loginPage.fadeOut();
         $chatPage.fadeIn("slow");
         $loginPage.off('click');
@@ -596,6 +617,10 @@ $(function () {
     });
 
     socket.on('create room', function (data) {
+        if($hiddenBtn.val() === "hide"){
+            showLeft();
+        }
+        $hiddenBtn.attr("disabled", false);
         window.sessionStorage.roomName = data.roomName;
         $loginPage.fadeOut();
         $chatPage.fadeIn("slow");
@@ -606,6 +631,7 @@ $(function () {
     });
 
     socket.on('invite user', function (data) {
+
         inviteFriend = data.inviteName;
         $loginPage.fadeOut();
         $chatPage.fadeIn("slow");
@@ -616,6 +642,10 @@ $(function () {
 
 
     socket.on('invite success', function (data) {
+        if($hiddenBtn.val() === "hide"){
+            showLeft();
+        }
+        $hiddenBtn.attr("disabled", false);
         inviteFriend = data.inviteName;
         $loginPage.fadeOut();
         $chatPage.fadeIn("slow");

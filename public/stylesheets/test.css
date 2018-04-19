@@ -111,6 +111,7 @@ ul {
 
 /* login page*/
 .login.page {
+    clear: left;
     background-color: #000;
     width: 100%;
     height: 100%;
