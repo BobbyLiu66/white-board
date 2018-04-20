@@ -13,7 +13,8 @@ html, input {
     Helvetica,
     Arial,
     "Lucida Grande",
-    sans-serif;
+    sans-serif,
+    "Songti SC";
 }
 
 html, body {margin: 0; height: 100%; overflow: hidden}
@@ -256,6 +257,10 @@ li.messageOneself{
 
 .messages {
     font-size: 150%;
+}
+
+.messageBody {
+    font-size: 100%;
 }
 
 .inputMessage {
