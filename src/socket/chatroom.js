@@ -15,11 +15,11 @@ let acceptedNum = {};
 let accept = {};
 let total = {};
 
-io.on('connection', function (socket) {
+io.on('connection',  (socket) => {
     //chat room
     let addedUser = false;
     // create or join in a room
-    socket.on('create room', async function (data) {
+    socket.on('create room', async (data) => {
         let result = await user_service.checkRoom(data.roomName, data.owner);
         if (result.err) {
             socket.emit('create room fail', result);
@@ -37,7 +37,7 @@ io.on('connection', function (socket) {
         if (result.status === "Join") {
             //load message history
             if (messageHistory.length !== 0) {
-                let sendHistory = _.filter(messageHistory, function (value) {
+                let sendHistory = _.filter(messageHistory, (value) => {
                     return value.roomName === socket.roomName
                 });
                 socket.emit('load history', sendHistory);
@@ -55,7 +55,7 @@ io.on('connection', function (socket) {
     });
 
     // send new message to client
-    socket.on('new message', function (data) {
+    socket.on('new message', (data) => {
         // we tell the client to execute 'new message'
         //TODO save to redis
         messageHistory.push({
@@ -76,7 +76,7 @@ io.on('connection', function (socket) {
     });
 
     // sign in user
-    socket.on('add user', function (username, roomName = "default") {
+    socket.on('add user', (username, roomName = "default") => {
         if (addedUser) return;
         // we store the username in the socket session for this client
         users[username] = socket.id;
@@ -91,7 +91,7 @@ io.on('connection', function (socket) {
         user_service.updateUserStatus(username, "login");
         //load message history
         if (messageHistory.length !== 0) {
-            let sendHistory = _.filter(messageHistory, function (value) {
+            let sendHistory = _.filter(messageHistory, (value) => {
                 return value.roomName === socket.roomName
             });
             socket.emit('load history', sendHistory);
@@ -113,7 +113,7 @@ io.on('connection', function (socket) {
     });
 
     // login method
-    socket.on('check user', async function (username, pwd) {
+    socket.on('check user', async (username, pwd) => {
         let result = await user_service.checkUser(username, pwd);
         if (result.err) {
             socket.emit('login fail', result);
@@ -132,7 +132,7 @@ io.on('connection', function (socket) {
 
         //load message history
         if (messageHistory.length !== 0) {
-            let sendHistory = _.filter(messageHistory, function (value) {
+            let sendHistory = _.filter(messageHistory, (value) => {
                 return value.roomName === socket.roomName
             });
             socket.emit('load history', sendHistory);
@@ -153,7 +153,7 @@ io.on('connection', function (socket) {
     });
 
     //invite other user to this room
-    socket.on('invite user', async function (data) {
+    socket.on('invite user', async (data) => {
         let result = await user_service.checkFriend(data.inviteName);
         if (result.message) {
             io.in(users[data.inviteName]).emit('invite user', {
@@ -171,7 +171,7 @@ io.on('connection', function (socket) {
     });
 
     // accept room owner's invitation
-    socket.on('accept invite', function (data) {
+    socket.on('accept invite', (data) => {
         socket.leave(socket.roomName);
         user_service.updateRoomUser(data.roomName, data.username);
         socket.join(data.roomName);
@@ -184,7 +184,7 @@ io.on('connection', function (socket) {
             roomName: data.roomName
         });
         if (messageHistory.length !== 0) {
-            let sendHistory = _.filter(messageHistory, function (value) {
+            let sendHistory = _.filter(messageHistory, (value) => {
                 return value.roomName === socket.roomName
             });
             socket.emit('load history', sendHistory, socket.roomName);
@@ -196,28 +196,28 @@ io.on('connection', function (socket) {
     });
 
     // decline room owner's invitation
-    socket.on('decline invite', function (data) {
+    socket.on('decline invite', (data) => {
         socket.broadcast.to(users[data.username]).emit('decline invite', {
             username: data.inviteUser
         });
     });
 
     // broadcast user typing status
-    socket.on('typing', function () {
+    socket.on('typing', () => {
         socket.broadcast.to(socket.roomName).emit('typing', {
             username: socket.username
         });
     });
 
     // broadcast user stop typing status
-    socket.on('stop typing', function () {
+    socket.on('stop typing', () => {
         socket.broadcast.to(socket.roomName).emit('stop typing', {
             username: socket.username
         });
     });
 
     // logout user
-    socket.on('disconnect', function () {
+    socket.on('disconnect', () => {
         if (addedUser) {
             // echo globally that this client has left
             user_service.updateUserStatus(socket.username, "logout");
@@ -257,7 +257,7 @@ io.on('connection', function (socket) {
         }
     });
 
-
+    // accept clear whiteboard request
     socket.on('accept clear', (data) => {
         if (accept.hasOwnProperty(socket.roomName)) {
             accept[socket.roomName]++;
@@ -280,6 +280,7 @@ io.on('connection', function (socket) {
         }
     });
 
+    // decline clear whiteboard request
     socket.on('decline clear', (data) => {
         socket.broadcast.to(users[data.sponsor]).emit('decline clear', {
             username: socket.username,
