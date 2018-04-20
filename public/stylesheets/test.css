@@ -137,7 +137,7 @@ ul {
     outline: none;
     padding-bottom: 15px;
     text-align: center;
-    width: 35%;
+    min-width: 40%;
 }
 
 .login.page .title {
@@ -239,4 +239,27 @@ li.messageOneself{
     font-size: 70%;
     margin: 5px;
     text-align: center;
+}
+
+
+.close{
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    color: white;
+    background-color: black;
+}
+
+.close a:link, .close a:visited {
+    background-color: black;
+    color: white;
+    padding: 14px 14px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+}
+
+
+.close a:hover, .close a:active {
+    background-color: gray;
 }

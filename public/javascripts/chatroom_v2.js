@@ -71,6 +71,12 @@ $(function () {
         }, 6 * 1000)
     });
 
+    $(".login.page .close a").click(function () {
+        if(window.sessionStorage.username){
+            displayMainArea()
+        }
+    });
+
     //hidden display canvas
     $hiddenBtn.click(function () {
         if ($hiddenBtn.val() === "hide") {
@@ -506,6 +512,17 @@ $(function () {
         $(".pages").css({"width": "25%"})
     }
 
+    function displayMainArea(){
+        $hiddenBtn.attr("disabled", false);
+        if ($hiddenBtn.val() === "hide") {
+            showLeft();
+        }
+        $loginPage.hide();
+        $chatPage.fadeIn("slow");
+        $loginPage.off('click');
+        $currentInput = $inputMessage.focus();
+    }
+
     // Keyboard events
     $window.keydown(function (event) {
         // When the client hits ENTER on their keyboard
@@ -528,16 +545,8 @@ $(function () {
         }
 
         // click esc go back
-        if (event.which === 27) {
-            $hiddenBtn.attr("disabled", false);
-            if ($hiddenBtn.val() === "hide") {
-                showLeft();
-            }
-            $loginPage.hide();
-            $navControl.fadeIn("slow");
-            $chatPage.fadeIn("slow");
-            $loginPage.off('click');
-            $currentInput = $inputMessage.focus();
+        if (event.which === 27 && window.sessionStorage.username) {
+            displayMainArea()
         }
     });
 
