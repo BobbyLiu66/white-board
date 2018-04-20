@@ -707,7 +707,7 @@ $(function () {
                 log('you have been disconnected');
                 connectState.reconnect = true;
             }
-        }, 6 * 1000);
+        }, 30 * 1000);
     });
 
     socket.on('reconnect', function () {
@@ -715,9 +715,9 @@ $(function () {
         if (connectState.reconnect) {
             log('you have been reconnected');
             connectState.reconnect = false;
-        }
-        if (window.sessionStorage.username) {
-            socket.emit('add user', window.sessionStorage.username, window.sessionStorage.roomName);
+            if (window.sessionStorage.username) {
+                socket.emit('add user', window.sessionStorage.username, window.sessionStorage.roomName);
+            }
         }
     });
 
@@ -726,7 +726,7 @@ $(function () {
             if (connectState.reconnect) {
                 log('attempt to reconnect has failed');
             }
-        }, 1000);
+        }, 5 * 1000);
     });
 
     //whiteboard
