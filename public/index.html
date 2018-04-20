@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Chat Room</title>
-    <link rel="stylesheet" href="stylesheets/test.css">
+    <link rel="stylesheet" href="stylesheets/style.css">
 </head>
 <body>
 <div>
@@ -55,7 +55,7 @@
 
     <div class="row">
         <div class="left">
-            <canvas id="canvas"></canvas>
+            <canvas id="canvas" style="display: none"></canvas>
         </div>
 
         <div class="right chatRoom">
@@ -82,11 +82,14 @@
                                        placeholder="Password"/>
                             </li>
                             <li>
-                                <input id="roomName" class="input" type="text" placeholder="Room Name" maxlength="20"/>
+                                <input id="roomName" class="input" type="text" placeholder="Room Name" maxlength="20" style="display: none"/>
                             </li>
                             <li>
-                                <input id="friendName" class="input" type="text" placeholder="Friend's Name"
+                                <input id="friendName" class="input" type="text" placeholder="Friend's Name" style="display: none"
                                        maxlength="10"/>
+                            </li>
+                            <li>
+                                <button class="enter">SUBMIT</button>
                             </li>
                         </ul>
                     </div>

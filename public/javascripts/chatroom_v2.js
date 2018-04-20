@@ -40,10 +40,6 @@ $(function () {
     let $loginMsg = $('h3.title');
     let $hiddenBtn = $('.hideDisplay button');
 
-    $roomNameInput.hide();
-    $inviteFriend.hide();
-    $navControl.hide();
-    $('#canvas').hide();
     onResize();
 
     if (window.sessionStorage.username !== undefined) {
@@ -75,6 +71,10 @@ $(function () {
         if(window.sessionStorage.username){
             displayMainArea()
         }
+    });
+
+    $(".enter").click(function () {
+       requestsEvent()
     });
 
     //hidden display canvas
@@ -135,10 +135,6 @@ $(function () {
         friendState = true
     });
 
-    // Focus input when clicking anywhere on login page
-    $loginPage.click(function () {
-        $currentInput.focus();
-    });
 
     // Focus input when clicking on the message input's border
     $inputMessage.click(function () {
@@ -523,25 +519,29 @@ $(function () {
         $currentInput = $inputMessage.focus();
     }
 
+    function requestsEvent(){
+        if (window.sessionStorage.username) {
+            sendMessage();
+            socket.emit('stop typing');
+            typing = false;
+        } else {
+            setUsername();
+        }
+        if (roomState) {
+            setRoomName();
+            $roomNameInput.val('')
+        }
+        if (friendState) {
+            sendInviteMessage();
+            $inviteFriend.val('')
+        }
+    }
+
     // Keyboard events
     $window.keydown(function (event) {
         // When the client hits ENTER on their keyboard
         if (event.which === 13) {
-            if (window.sessionStorage.username) {
-                sendMessage();
-                socket.emit('stop typing');
-                typing = false;
-            } else {
-                setUsername();
-            }
-            if (roomState) {
-                setRoomName();
-                $roomNameInput.val('')
-            }
-            if (friendState) {
-                sendInviteMessage();
-                $inviteFriend.val('')
-            }
+            requestsEvent();
         }
 
         // click esc go back
