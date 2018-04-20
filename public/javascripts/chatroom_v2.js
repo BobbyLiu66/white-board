@@ -30,6 +30,7 @@ $(function () {
     let $inviteFriend = $('#friendName');
     let $messages = $('.messages'); // Messages area
     let $inputMessage = $('.inputMessage'); // Input message input box
+    //TODO mobile device after input username cannot type password and need a close and entry button
     let $currentInput = $usernameInput.focus();
 
     let $loginPage = $('.login.page'); // The login page
