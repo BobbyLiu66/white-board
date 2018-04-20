@@ -62,16 +62,16 @@ $(function () {
     window.addEventListener('resize', onResize, false);
 
     // Click events
-    $(".clearBoard").click(() => {
+    $(".clearBoard").click(function () {
         socket.emit('clear area');
         $(this).attr("disabled", true);
-        setTimeout(() => {
-            $(this).attr("disabled", false)
+        setTimeout(function () {
+            $(".clearBoard").attr("disabled", false)
         }, 6 * 1000)
     });
 
     //hidden display canvas
-    $hiddenBtn.click(() => {
+    $hiddenBtn.click(function () {
         if ($hiddenBtn.val() === "hide") {
             $hiddenBtn.prop("value", "show");
             $hiddenBtn.html("Show Board");
@@ -85,12 +85,12 @@ $(function () {
     });
 
     //clear message
-    $('.clearChat').click(() => {
+    $('.clearChat').click(function () {
         $('.messages > li').remove()
     });
 
     //create room
-    $('.newRoom').click(() => {
+    $('.newRoom').click(function () {
         if ($hiddenBtn.val() === "hide") {
             hideLeft();
         }
@@ -109,7 +109,7 @@ $(function () {
     });
 
     //invite friend
-    $('.inviteFriend').click(() => {
+    $('.inviteFriend').click(function () {
         if ($hiddenBtn.val() === "hide") {
             hideLeft();
         }
@@ -129,12 +129,12 @@ $(function () {
     });
 
     // Focus input when clicking anywhere on login page
-    $loginPage.click( () => {
+    $loginPage.click(function () {
         $currentInput.focus();
     });
 
     // Focus input when clicking on the message input's border
-    $inputMessage.click( () => {
+    $inputMessage.click(function () {
         $inputMessage.focus();
     });
 
@@ -153,7 +153,6 @@ $(function () {
         let w = canvas.width;
         let h = canvas.height;
         let image = canvas.toDataURL();
-
         socket.emit('drawing', {
             x0: x0 / w,
             y0: y0 / h,
@@ -195,7 +194,7 @@ $(function () {
     // limit the number of events per second
     function throttle(callback, delay) {
         let previousCall = new Date().getTime();
-        return () => {
+        return function () {
             let time = new Date().getTime();
 
             if ((time - previousCall) >= delay) {
@@ -282,7 +281,7 @@ $(function () {
             .text(options.username)
             .css('color', getUsernameColor(options.username));
         let $accept = $('<button class="acceptOrDecline"/>')
-            .text("accept").click( () => {
+            .text("accept").click(function () {
                 socket.emit('accept invite', {
                     roomName: options.roomName,
                     username: window.sessionStorage.username
@@ -290,7 +289,7 @@ $(function () {
                 $(this).parent().children('button').attr("disabled", true)
             });
         let $decline = $('<button class="acceptOrDecline"/>')
-            .text("decline").click( () => {
+            .text("decline").click(function () {
                 socket.emit('decline invite', {
                     roomName: options.roomName,
                     username: options.username,
@@ -311,7 +310,7 @@ $(function () {
             .text(options.sponsor)
             .css('color', getUsernameColor(options.sponsor));
         let $accept = $('<button class="acceptOrDecline"/>').text("accept")
-            .click(() => {
+            .click(function () {
                 state = "accept";
                 socket.emit('accept clear', {
                     sponsor: options.sponsor
@@ -319,7 +318,7 @@ $(function () {
                 $(this).parent().children('button').attr("disabled", true)
             });
         let $decline = $('<button class="acceptOrDecline"/>').text("decline")
-            .click(() => {
+            .click(function () {
                 state = "decline";
                 socket.emit('decline clear', {
                     sponsor: options.sponsor
@@ -328,7 +327,7 @@ $(function () {
             });
 
         // if no response after 1 minute click decline automatically
-        setTimeout(() => {
+        setTimeout(function () {
             if (state === "default") {
                 $decline.click()
             }
@@ -406,7 +405,7 @@ $(function () {
 
     // Removes the visual chat typing message
     function removeChatTyping(data) {
-        getTypingMessages(data).fadeOut(() => {
+        getTypingMessages(data).fadeOut(function () {
             $(this).remove();
         });
     }
@@ -456,7 +455,7 @@ $(function () {
             }
             lastTypingTime = (new Date()).getTime();
 
-            setTimeout(() => {
+            setTimeout(function () {
                 let typingTimer = (new Date()).getTime();
                 let timeDiff = typingTimer - lastTypingTime;
                 if (timeDiff >= TYPING_TIMER_LENGTH && typing) {
@@ -469,7 +468,7 @@ $(function () {
 
     // Gets the 'X is typing' messages of a user
     function getTypingMessages(data) {
-        return $('.typing.message').filter(() => {
+        return $('.typing.message').filter(function () {
             return $(this).data('username') === data.username;
         });
     }
@@ -507,7 +506,7 @@ $(function () {
     }
 
     // Keyboard events
-    $window.keydown((event) => {
+    $window.keydown(function (event) {
         // When the client hits ENTER on their keyboard
         if (event.which === 13) {
             if (window.sessionStorage.username) {
@@ -541,14 +540,14 @@ $(function () {
         }
     });
 
-    $inputMessage.on('input', () => {
+    $inputMessage.on('input', function () {
         updateTyping();
     });
 
     // Socket events
 
     // Whenever the server emits 'login', log the login message
-    socket.on('login', (data) => {
+    socket.on('login', function (data) {
         $hiddenBtn.attr("disabled", false);
         $loginPage.fadeOut();
         $chatPage.fadeIn("slow");
@@ -577,24 +576,24 @@ $(function () {
         }
     });
 
-    socket.on('login fail', (data) => {
+    socket.on('login fail', function (data) {
         alert(data.err);
         $usernameInput.val('').focus();
         $passwordInput.val('');
     });
 
-    socket.on('create room fail', (data) => {
+    socket.on('create room fail', function (data) {
         alert(data.err);
         $roomNameInput.val('');
         $usernameInput.focus()
     });
 
-    socket.on('invite fail', (data) => {
+    socket.on('invite fail', function (data) {
         alert(data.err);
         $inviteFriend.val('').focus();
     });
     // Whenever the server emits 'new message', update the chat body
-    socket.on('new message', (data) => {
+    socket.on('new message', function (data) {
         let now = (new Date()).getMinutes();
         if (now !== dateTime) {
             dateTime = now;
@@ -604,13 +603,13 @@ $(function () {
         addChatMessage(data);
     });
 
-    socket.on('decline invite', (data) => {
+    socket.on('decline invite', function (data) {
         log(data.username + ' decline to join your room')
     });
 
-    socket.on('load history', (data) => {
+    socket.on('load history', function (data) {
         let flagMinutes, flag = true;
-        _.forEach(data, (value) => {
+        _.forEach(data, function (value) {
             let messageTime = new Date(value.messageTime);
             if (flag || (messageTime.getMinutes() - 5) >= flagMinutes) {
                 flagMinutes = messageTime.getMinutes();
@@ -627,11 +626,11 @@ $(function () {
         log('chat history loaded')
     });
 
-    socket.on('clear screen', () => {
+    socket.on('clear screen', function () {
         $('.messages > li').remove();
     });
 
-    socket.on('create room', (data) => {
+    socket.on('create room', function (data) {
         if ($hiddenBtn.val() === "hide") {
             showLeft();
         }
@@ -645,7 +644,7 @@ $(function () {
         log(data.roomName + " " + data.message)
     });
 
-    socket.on('invite user', (data) => {
+    socket.on('invite user', function (data) {
         inviteFriend = data.inviteName;
         $loginPage.fadeOut();
         $chatPage.fadeIn("slow");
@@ -654,7 +653,7 @@ $(function () {
         logWithStyle(' invite you to join room ', data, 'invite')
     });
 
-    socket.on('invite success', (data) => {
+    socket.on('invite success', function (data) {
         if ($hiddenBtn.val() === "hide") {
             showLeft();
         }
@@ -668,7 +667,7 @@ $(function () {
     });
 
     // Whenever the server emits 'user joined', log it in the chat body
-    socket.on('user joined', (data) => {
+    socket.on('user joined', function (data) {
         if (data.roomName) {
             log(data.username + ' joined to room: ' + data.roomName);
             window.sessionStorage.roomName = data.roomName;
@@ -679,7 +678,7 @@ $(function () {
     });
 
     // Whenever the server emits 'user left', log it in the chat body
-    socket.on('user left', (data) => {
+    socket.on('user left', function (data) {
         if (data.otherRoom) {
             log(data.username + ' go to other room');
         }
@@ -690,19 +689,19 @@ $(function () {
     });
 
     // Whenever the server emits 'typing', show the typing message
-    socket.on('typing', (data) => {
+    socket.on('typing', function (data) {
         addChatTyping(data);
     });
 
     // Whenever the server emits 'stop typing', kill the typing message
-    socket.on('stop typing', (data) => {
+    socket.on('stop typing', function (data) {
         removeChatTyping(data);
     });
 
     let connectState = {disconnect: false, reconnect: false};
-    socket.on('disconnect', () => {
+    socket.on('disconnect', function () {
         connectState.disconnect = true;
-        setTimeout(() => {
+        setTimeout(function () {
             if (connectState.disconnect) {
                 log('you have been disconnected');
                 connectState.reconnect = true;
@@ -710,7 +709,7 @@ $(function () {
         }, 6 * 1000);
     });
 
-    socket.on('reconnect', () => {
+    socket.on('reconnect', function () {
         connectState.disconnect = false;
         if (connectState.reconnect) {
             log('you have been reconnected');
@@ -721,8 +720,8 @@ $(function () {
         }
     });
 
-    socket.on('reconnect_error', () => {
-        setTimeout(() => {
+    socket.on('reconnect_error', function () {
+        setTimeout(function () {
             if (connectState.reconnect) {
                 log('attempt to reconnect has failed');
             }
@@ -730,36 +729,36 @@ $(function () {
     });
 
     //whiteboard
-    socket.on('clear area', (data) => {
+    socket.on('clear area', function (data) {
         logAboutClear(' want to clear the area', data)
     });
 
-    socket.on('clear success', () => {
+    socket.on('clear success', function () {
         context.setTransform(1, 0, 0, 1, 0, 0);
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
         log('area clear success')
     });
 
-    socket.on('clear fail', () => {
+    socket.on('clear fail', function () {
         log('area clear fail')
     });
 
-    socket.on('accept clear', (data) => {
+    socket.on('accept clear', function (data) {
         log(data.username + ' agree clear')
     });
 
-    socket.on('decline clear', (data) => {
+    socket.on('decline clear', function (data) {
         log(data.username + ' decline clear')
     });
 
-    socket.on('drawing', (data) => {
+    socket.on('drawing', function (data) {
         onDrawingEvent(data)
     });
 
-    socket.on('load image', (data) => {
+    socket.on('load image', function (data) {
         if (data.roomName !== "default") {
             let image = new Image();
-            image.onload = () => {
+            image.onload = function () {
                 context.drawImage(image, 0, 0);
             };
             if (data.image) {
@@ -768,7 +767,7 @@ $(function () {
         }
     });
 
-    socket.on('clear whiteboard screen', () => {
+    socket.on('clear whiteboard screen', function () {
         context.setTransform(1, 0, 0, 1, 0, 0);
         context.clearRect(0, 0, context.canvas.width, context.canvas.height);
     });

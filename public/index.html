@@ -2,69 +2,104 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Chat Room</title>
-    <link rel="stylesheet" href="stylesheets/style.css">
+    <link rel="stylesheet" href="stylesheets/test.css">
 </head>
 <body>
 <div>
-    <canvas id="whiteboard"></canvas>
-    <div class="chatRoom">
-        <ul class="pages">
-            <li class="chat page">
-                <div class="chatArea">
-                    <ul class="messages"></ul>
-                </div>
-                <input class="inputMessage" placeholder="Type here..."/>
+
+    <div class="nav">
+        <ul>
+            <li class="whiteboardControllers hideDisplay">
+                <button class="hiddenWhiteboard" value="show">Show Board</button>
             </li>
-            <li>
-                <div class="chatControls">
-                    <button id="clearChat">Clear Chat</button>
-                    <button id="newRoom">Create/Join Room</button>
-                    <button id="invite">Invite Friend</button>
-                </div>
+            <li class="whiteboardControllers control">
+                <button class="clearWhiteboard clearBoard">Clear Board</button>
             </li>
-            <li class="login page">
-                <div class="form">
-                    <h3 class="title">What's your nickname?</h3>
-                    <input class="usernameInput" type="text" maxlength="10" placeholder="nickname"/>
-                    <br/><input class="passwordInput" type="password" maxlength="10" placeholder="password"/>
-                    <input class="roomnameInput" type="text" maxlength="20"/>
-                    <input class="inviteInput" type="text" maxlength="10"/>
-                </div>
+            <li class="whiteboardControllers control dropDown">
+                <span>LineWidth:<select class="selWidth">
+                    <option value="1">1</option>
+                    <option value="3">3</option>
+                    <option value="5" selected="selected">5</option>
+                    <option value="7">7</option>
+                    <option value="9">9</option>
+                    <option value="11">11</option>
+                        </select>
+                </span>
+            </li>
+            <li class="whiteboardControllers control dropDown">
+                <span>Color:
+                <select class="selColor">
+                    <option value="black">black</option>
+                    <option value="blue" selected="selected">blue</option>
+                    <option value="red">red</option>
+                    <option value="green">green</option>
+                    <option value="yellow">yellow</option>
+                    <option value="gray">gray</option>
+                </select>
+                </span>
+            </li>
+
+            <li class="chatRoomControllers">
+                <button class="clearChat">Clear Chat</button>
+            </li>
+            <li class="chatRoomControllers">
+                <button class="newRoom">Create/Join Room</button>
+            </li>
+            <li class="chatRoomControllers">
+                <button class="inviteFriend">Invite Friend</button>
             </li>
         </ul>
     </div>
 
-    <div class="controls">
-        <button id="clear">Clear Whiteboard</button>
-        Line width : <select id="selWidth">
-        <option value="1">1</option>
-        <option value="3">3</option>
-        <option value="5" selected="selected">5</option>
-        <option value="7">7</option>
-        <option value="9">9</option>
-        <option value="11">11</option>
-    </select>
-        Color : <select id="selColor">
-        <option value="black">black</option>
-        <option value="blue" selected="selected">blue</option>
-        <option value="red">red</option>
-        <option value="green">green</option>
-        <option value="yellow">yellow</option>
-        <option value="gray">gray</option>
-    </select>
-        <button id="save">Save Area</button>
-    </div>
-    <div class="hideDisplay">
-        <button id="hidden" value="hide">Hidden Whiteboard</button>
+    <div class="row">
+        <div class="left">
+            <canvas id="canvas"></canvas>
+        </div>
+
+        <div class="right chatRoom">
+            <ul class="pages">
+                <li class="chat page">
+                    <div class="chatArea">
+                        <ul class="messages"></ul>
+                    </div>
+                    <input class="inputMessage" placeholder="Type here..."/>
+                </li>
+
+                <li class="login page">
+                    <div class="form">
+                        <ul>
+                            <li>
+                                <h3 class="title">What's your nickname?</h3>
+                            </li>
+                            <li>
+                                <input id="username" class="input" type="text" maxlength="10" placeholder="nickname"/>
+                            </li>
+                            <li>
+                                <input id="password" class="input" type="password" maxlength="10"
+                                       placeholder="password"/>
+                            </li>
+                            <li>
+                                <input id="roomName" class="input" type="text" placeholder="room name" maxlength="20"/>
+                            </li>
+                            <li>
+                                <input id="friendName" class="input" type="text" placeholder="friend nick name"
+                                       maxlength="10"/>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
 
 
 <script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
-<script src="javascripts/chatroom.js"></script>
-<script src="javascripts/whiteboard.js"></script>
+<script src="javascripts/chatroom_v2.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.5/lodash.min.js"></script>
+
 </body>
 </html>

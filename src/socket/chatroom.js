@@ -234,6 +234,9 @@ io.on('connection',  (socket) => {
             imageHistory[socket.roomName] = data.image;
             socket.to(socket.roomName).emit('drawing', data)
         }
+        else {
+            socket.emit('drawing',data)
+        }
     });
 
     // clear area request
