@@ -142,11 +142,9 @@ ul {
 }
 
 .enter{
-    /*display: block;*/
     margin-top: 50px;
     min-width: 80px;
     background-color: #008CBA;
-    border: none;
     color: white;
     padding: 10px 10px;
     text-align: center;
@@ -155,6 +153,7 @@ ul {
     height: 35px;
     -webkit-transition-duration: 0.4s; /* Safari */
     transition-duration: 0.4s;
+    border: none;
     cursor: pointer;
 }
 
@@ -208,13 +207,15 @@ ul {
 }
 
 .inputSubmit {
+    cursor: pointer;
+    color: gray;
+    border: none;
     font-size: 100%;
-    bottom: 0;
-    height: 40px;
-    width: 40px;
-    right: 0;
+    bottom: 7px;
+    height: 26px;
+    width: 80px;
+    right: 7px;
     outline: none;
-    padding: 7px;
     position: fixed;
     overflow: hidden;
 }
