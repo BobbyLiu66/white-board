@@ -140,7 +140,7 @@ ul {
     min-width: 40%;
 }
 
-.login.page .form .enter{
+.enter{
     /*display: block;*/
     margin-top: 50px;
     min-width: 80px;
@@ -155,10 +155,6 @@ ul {
     -webkit-transition-duration: 0.4s; /* Safari */
     transition-duration: 0.4s;
     cursor: pointer;
-}
-.login.page .form .enter:hover {
-    background-color: white;
-    color: #008CBA;
 }
 
 .login.page .title {
@@ -203,12 +199,23 @@ ul {
     height: 40px;
     left: 0;
     outline: none;
-    padding-left: 10px;
-    padding-right: 10px;
+    padding-left: 7px;
+    padding-right: 7px;
     position: fixed;
     width: 100%;
     overflow: hidden;
+}
+
+.inputSubmit {
+    font-size: 100%;
+    bottom: 0;
+    height: 40px;
+    width: 40px;
     right: 0;
+    outline: none;
+    padding: 7px;
+    position: fixed;
+    overflow: hidden;
 }
 
 /* Messages */
@@ -289,6 +296,7 @@ li.messageOneself{
     display: none;
 }
 
+
 /* Responsive layout - when the screen is less than 800px wide, visible whiteboard */
 @media screen and (max-width: 800px) {
     .right {
@@ -301,10 +309,12 @@ li.messageOneself{
     }
 
     .whiteboardControllers{
+        width: 0;
         visibility: hidden;
     }
 
     .whiteboardControllers.control{
+        width: 0;
         visibility: hidden;
     }
 
