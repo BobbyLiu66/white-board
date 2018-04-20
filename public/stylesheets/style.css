@@ -288,3 +288,34 @@ li.messageOneself{
 .whiteboardControllers.control{
     display: none;
 }
+
+/* Responsive layout - when the screen is less than 800px wide, visible whiteboard */
+@media screen and (max-width: 800px) {
+    .right {
+        width: 100%;
+        padding: 0;
+    }
+
+    .left {
+        visibility: hidden;
+    }
+
+    .whiteboardControllers{
+        visibility: hidden;
+    }
+
+    .whiteboardControllers.control{
+        visibility: hidden;
+    }
+
+    .chat.page{
+        width: 100%;
+    }
+    .inputMessage{
+        width: 100%;
+        left: 0;
+    }
+    .pages{
+        width: 100%;
+    }
+}
