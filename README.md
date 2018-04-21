@@ -9,9 +9,21 @@ a chat room with cooperate whiteboard
 * MongoDB
 * Express
 #### Version 2
-I am going to change the jQuery to React and using ReactNative to implement the mobile client side. Using Redis instead of save hot data in RAM. Integrating the weather module into it.
+I am going to change the jQuery to React and using ReactNative to implement the mobile client side. Using Redis instead of save hot data in RAM. Integrating the weather module into it.  
+PS: There are some synchronize problems about cooperate whiteboard after run this project on google cloud engine. There would be an obvious delay synchronize. I will fix this in version 2.
 
 ### Main Function
+
+* Basic chat room ![](http://odfbxgsva.bkt.clouddn.com/chat%20basic.gif)  
+
+* Clear chat message ![](http://odfbxgsva.bkt.clouddn.com/clear%20chat.gif)  
+
+* Create Chat Room ![](http://odfbxgsva.bkt.clouddn.com/create%20room.gif)  
+
+* Invite Friend ![](http://odfbxgsva.bkt.clouddn.com/invite%20friend.gif)  
+
+* Cooperate Whiteboard And Clear ![](http://odfbxgsva.bkt.clouddn.com/whiteboard.gif)
+
 * #### Chat Room Version 1.0 
   1. Need to login/sign in before use this.
   2. After close the browser tab this user have been logout.
@@ -32,5 +44,3 @@ I am going to change the jQuery to React and using ReactNative to implement the 
 * #### Whiteboard Version 1.1
   1. When user in default room, cooperate whiteboard cannot be used. Whiteboard could be only used as personal board that can be cleared by themselves.
   2. When the device width less than 800px. The whiteboard will be hided.
-
-
