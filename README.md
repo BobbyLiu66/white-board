@@ -15,19 +15,19 @@ PS: There are some synchronize problems about cooperate whiteboard after run thi
 ### Screen shot about some main function
 
 #### Basic chat room      
-![](http://odfbxgsva.bkt.clouddn.com/chat_basic.gif)      
+![](http://odfbxgsva.bkt.clouddn.com/chat_basic.gif)
     
-#### Clear chat message      
+#### Clear chat message
 ![](http://odfbxgsva.bkt.clouddn.com/clear_chat.gif)    
    
 #### Create Chat Room
-![](http://odfbxgsva.bkt.clouddn.com/create_room.gif)     
+![](http://od6hvn95f.bkt.clouddn.com/create_room.gif)
 
-#### Invite Friend      
-![](http://odfbxgsva.bkt.clouddn.com/invite_friend.gif)      
+#### Invite Friend
+![](http://odfbxgsva.bkt.clouddn.com/invite_friend.gif)
 
-#### Cooperate Whiteboard And Clear      
-![](http://odfbxgsva.bkt.clouddn.com/whiteboard.gif)    
+#### Cooperate Whiteboard And Clear
+![](http://odfbxgsva.bkt.clouddn.com/whiteboard.gif)
 
 ### Description
 * #### Chat Room Version 1.0 
