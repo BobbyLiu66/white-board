@@ -20,7 +20,7 @@ PS: There are some synchronize problems about cooperate whiteboard after run thi
 #### Clear chat message      
 ![](http://odfbxgsva.bkt.clouddn.com/clear_chat.gif)    
    
-#### Create Chat Room     
+#### Create Chat Room
 ![](http://odfbxgsva.bkt.clouddn.com/create_room.gif)     
 
 #### Invite Friend      
