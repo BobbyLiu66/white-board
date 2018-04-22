@@ -10,8 +10,8 @@ a chat room with cooperate whiteboard
 * Express
 #### Version 2
 I am going to change the jQuery to React and using ReactNative to implement the mobile client side. Using Redis instead of save hot data in RAM. Integrating the weather module into it.  
-PS: There are some synchronize problems about cooperate whiteboard after run this project on google cloud engine. There would be an obvious delay synchronize. I will fix this in version 2.
-PS2: The problem is when draw something on the board even a single line. The client side would send multiple request to the server side and the other client would get mutiple message from the server as well. This could give the cloud engine a very high network demand as well as current user's network speed. I would change this method after I figure out the solution.
+Bugs: There are some synchronize problems about cooperate whiteboard after run this project on google cloud engine. There would be an obvious delay synchronize. I will fix this in version 2.  
+Reason: The problem is when draw something on the board even a single line. The client side would send multiple request to the server side and the other client would get mutiple message from the server as well. This could give the cloud engine a very high network demand as well as current user's network speed. I would change this method after I figure out the solution.
 
 ### Screen shot about some main function
 
