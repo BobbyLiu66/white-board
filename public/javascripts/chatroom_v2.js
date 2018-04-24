@@ -31,7 +31,6 @@ $(function () {
     let $inviteFriend = $('#friendName');
     let $messages = $('.messages'); // Messages area
     let $inputMessage = $('.inputMessage'); // Input message input box
-    //TODO mobile device after input username cannot type password and need a close and entry button
     let $currentInput = $usernameInput.focus();
 
     let $loginPage = $('.login.page'); // The login page
@@ -191,15 +190,15 @@ $(function () {
         let strokeStyle = $('.selColor').val();
         let lineWidth = $('.selWidth').val();
         drawLine(current.x, current.y, e.clientX, e.clientY, true, strokeStyle, lineWidth);
-        console.log(1);
         setTimeout(sendDraw, 300)
     }
+
     function sendDraw() {
-            if (!drawing) {
-                let image = canvas.toDataURL();
-                socket.emit('drawing', drawLineDate, image);
-                drawLineDate = []
-            }
+        if (!drawing) {
+            let image = canvas.toDataURL();
+            socket.emit('drawing', drawLineDate, image);
+            drawLineDate = []
+        }
     }
 
     function onMouseMove(e) {
@@ -226,7 +225,6 @@ $(function () {
         };
     }
 
-    //TODO new implement
     function onDrawingEvent(data) {
         let w = canvas.width;
         let h = canvas.height;
