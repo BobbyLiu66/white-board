@@ -229,9 +229,9 @@ io.on('connection',  (socket) => {
 
 
     // whiteboard
-    socket.on('drawing', (data) => {
+    socket.on('drawing', (data,image) => {
         if(socket.roomName !== "default"){
-            imageHistory[socket.roomName] = data.image;
+            imageHistory[socket.roomName] = image;
             socket.to(socket.roomName).emit('drawing', data)
         }
         else {

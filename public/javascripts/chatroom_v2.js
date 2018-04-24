@@ -20,6 +20,7 @@ $(function () {
     let lastTypingTime;
     let dateTime;
     let current = {};
+    let drawLineDate = [];
     let drawing = false;
 
     let $window = $(window);
@@ -68,13 +69,13 @@ $(function () {
     });
 
     $(".login.page .close a").click(function () {
-        if(window.sessionStorage.username){
+        if (window.sessionStorage.username) {
             displayMainArea()
         }
     });
 
     $(".enter").click(function () {
-       requestsEvent()
+        requestsEvent()
     });
 
     //hidden display canvas
@@ -155,16 +156,25 @@ $(function () {
         }
         let w = canvas.width;
         let h = canvas.height;
-        let image = canvas.toDataURL();
-        socket.emit('drawing', {
+
+        drawLineDate.push({
             x0: x0 / w,
             y0: y0 / h,
             x1: x1 / w,
             y1: y1 / h,
-            image: image,
             strokeStyle: strokeStyle,
             lineWidth: lineWidth,
         });
+
+        // socket.emit('drawing', {
+        //     x0: x0 / w,
+        //     y0: y0 / h,
+        //     x1: x1 / w,
+        //     y1: y1 / h,
+        //     image: image,
+        //     strokeStyle: strokeStyle,
+        //     lineWidth: lineWidth,
+        // });
     }
 
     function onMouseDown(e) {
@@ -181,6 +191,15 @@ $(function () {
         let strokeStyle = $('.selColor').val();
         let lineWidth = $('.selWidth').val();
         drawLine(current.x, current.y, e.clientX, e.clientY, true, strokeStyle, lineWidth);
+        console.log(1);
+        setTimeout(sendDraw, 300)
+    }
+    function sendDraw() {
+            if (!drawing) {
+                let image = canvas.toDataURL();
+                socket.emit('drawing', drawLineDate, image);
+                drawLineDate = []
+            }
     }
 
     function onMouseMove(e) {
@@ -207,10 +226,13 @@ $(function () {
         };
     }
 
+    //TODO new implement
     function onDrawingEvent(data) {
         let w = canvas.width;
         let h = canvas.height;
-        drawLine(data.x0 * w, data.y0 * h, data.x1 * w, data.y1 * h, false, data.strokeStyle, data.lineWidth);
+        _.forEach(data, function (value) {
+            drawLine(value.x0 * w, value.y0 * h, value.x1 * w, value.y1 * h, false, value.strokeStyle, value.lineWidth);
+        });
     }
 
 
@@ -508,7 +530,7 @@ $(function () {
         $(".pages").css({"width": "25%"})
     }
 
-    function displayMainArea(){
+    function displayMainArea() {
         $hiddenBtn.attr("disabled", false);
         if ($hiddenBtn.val() === "hide") {
             showLeft();
@@ -519,7 +541,7 @@ $(function () {
         $currentInput = $inputMessage.focus();
     }
 
-    function requestsEvent(){
+    function requestsEvent() {
         if (window.sessionStorage.username) {
             sendMessage();
             socket.emit('stop typing');
