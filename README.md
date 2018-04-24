@@ -10,20 +10,27 @@ a chat room with cooperate whiteboard
 * Express
 #### Version 2
 I am going to change the jQuery to React and using ReactNative to implement the mobile client side. Using Redis instead of save hot data in RAM. Integrating the weather module into it.  
-PS: There are some synchronize problems about cooperate whiteboard after run this project on google cloud engine. There would be an obvious delay synchronize. I will fix this in version 2.
+Bugs: There are some synchronize problems about cooperate whiteboard after run this project on google cloud engine. There would be an obvious delay synchronize. I will fix this in version 2.  
+Reason: The problem is when draw something on the board even a single line. The client side would send multiple request to the server side and the other client would get mutiple message from the server as well. This could give the cloud engine a very high network demand as well as current user's network speed. I would change this method after I figure out the solution.
 
-### Main Function
+### Screen shot about some main function
 
-* Basic chat room ![](http://odfbxgsva.bkt.clouddn.com/chat%20basic.gif)  
+#### Basic chat room      
+![](http://odfbxgsva.bkt.clouddn.com/chat_basic.gif)
+    
+#### Clear chat message
+![](http://odfbxgsva.bkt.clouddn.com/clear_chat.gif)    
+   
+#### Create Chat Room
+![](http://od6hvn95f.bkt.clouddn.com/create_room.gif)
 
-* Clear chat message ![](http://odfbxgsva.bkt.clouddn.com/clear%20chat.gif)  
+#### Invite Friend
+![](http://odfbxgsva.bkt.clouddn.com/invite_friend.gif)
 
-* Create Chat Room ![](http://odfbxgsva.bkt.clouddn.com/create%20room.gif)  
+#### Cooperate Whiteboard And Clear
+![](http://odfbxgsva.bkt.clouddn.com/whiteboard.gif)
 
-* Invite Friend ![](http://odfbxgsva.bkt.clouddn.com/invite%20friend.gif)  
-
-* Cooperate Whiteboard And Clear ![](http://odfbxgsva.bkt.clouddn.com/whiteboard.gif)
-
+### Description
 * #### Chat Room Version 1.0 
   1. Need to login/sign in before use this.
   2. After close the browser tab this user have been logout.
