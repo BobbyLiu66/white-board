@@ -239,6 +239,7 @@ $(function () {
         let nickname = cleanInput($usernameInput.val().trim());
         let password = cleanInput($passwordInput.val().trim());
         if (nickname && password) {
+            //TODO finish this
             socket.emit('check user', nickname, password);
         }
         else {

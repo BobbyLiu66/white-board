@@ -22,13 +22,16 @@ io.on('connection',  (socket) => {
     socket.on('create room', async (data) => {
         let result = await user_service.checkRoom(data.roomName, data.owner);
         if (result.err) {
-            socket.emit('create room fail', result);
+            // fail
+            socket.emit('create room result', result);
             return
         }
-        io.in(socket.roomName).emit('user left', {
-            username: socket.username,
-            otherRoom: true
-        });
+        // success
+        socket.emit('create room result');
+        // io.in(socket.roomName).emit('user left', {
+        //     username: socket.username,
+        //     otherRoom: true
+        // });
         socket.join(data.roomName);
         socket.leave(socket.roomName);
         socket.roomName = data.roomName;
@@ -116,10 +119,13 @@ io.on('connection',  (socket) => {
     socket.on('check user', async (username, pwd) => {
         let result = await user_service.checkUser(username, pwd);
         if (result.err) {
-            socket.emit('login fail', result);
+            // fail
+            socket.emit('login result', result);
             return
         }
-        users[username] = socket.id;
+        //success
+        socket.emit('login result');
+        //TODO
         socket.username = username;
         socket.roomName = "default";
         socket.join(socket.roomName);
@@ -161,12 +167,14 @@ io.on('connection',  (socket) => {
                 roomName: socket.roomName,
                 inviteName: data.inviteName
             });
-            socket.emit('invite success', {
+            // success
+            socket.emit('invite result', {
                 inviteName: data.inviteName
             })
         }
         else {
-            socket.emit('invite fail', result)
+            // fail
+            socket.emit('invite result', result)
         }
     });
 
@@ -221,9 +229,9 @@ io.on('connection',  (socket) => {
         if (addedUser) {
             // echo globally that this client has left
             user_service.updateUserStatus(socket.username, "logout");
-            io.in(socket.roomName).emit('user left', {
-                username: socket.username,
-            });
+            // io.in(socket.roomName).emit('user left', {
+            //     username: socket.username,
+            // });
         }
     });
 
