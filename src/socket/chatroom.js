@@ -18,16 +18,16 @@ let total = {};
 io.on('connection',  (socket) => {
     //chat room
     let addedUser = false;
-    // create or join in a room
+    //TODO antiquate
     socket.on('create room', async (data) => {
         let result = await user_service.checkRoom(data.roomName, data.owner);
         if (result.err) {
             // fail
-            socket.emit('create room result', result);
+            socket.emit('request result', result);
             return
         }
         // success
-        socket.emit('create room result');
+        socket.emit('request result');
         // io.in(socket.roomName).emit('user left', {
         //     username: socket.username,
         //     otherRoom: true
@@ -59,23 +59,14 @@ io.on('connection',  (socket) => {
 
     // send new message to client
     socket.on('new message', (data) => {
-        // we tell the client to execute 'new message'
         //TODO save to redis
-        messageHistory.push({
-            username: socket.username,
-            message: data,
-            roomName: socket.roomName,
-            messageTime: new Date()
+        user_service.saveHistoryMessage({
+            username: data.username,
+            messageContent: data.messageContent,
+            roomName: socket.activeRoom,
+            messageTime: data.username
         });
-        socket.broadcast.to(socket.roomName).emit('new message', {
-            username: socket.username,
-            message: data
-        });
-        socket.emit('new message',{
-            username: socket.username,
-            message: data,
-            oneself:true
-        })
+        socket.broadcast.to(socket.activeRoom).emit('new message', data);
     });
 
     // sign in user
@@ -120,11 +111,11 @@ io.on('connection',  (socket) => {
         let result = await user_service.checkUser(username, pwd);
         if (result.err) {
             // fail
-            socket.emit('login result', result);
+            socket.emit('request result', result);
             return
         }
         //success
-        socket.emit('login result');
+        socket.emit('request result');
         //TODO
         socket.username = username;
         socket.roomName = "default";
@@ -158,6 +149,42 @@ io.on('connection',  (socket) => {
         })
     });
 
+    socket.on('user login', async (data) => {
+        let result = await user_service.checkUser(data.nickname, data.password);
+        if (result.err) {
+            // fail
+            socket.emit('request result', result);
+            return
+        }
+        //success
+        socket.emit('request result',data);
+        socket.username = username;
+        user_service.updateUserStatus(username, "login");
+        //TODO select friend from database
+        socket.emit('load friend list',{
+
+        });
+    });
+
+    // socket.on('load history',(data)=>{
+    //     //load message history
+    //     if (messageHistory.length !== 0) {
+    //         let sendHistory = _.filter(messageHistory, (value) => {
+    //             return value.roomName === socket.roomName
+    //         });
+    //         socket.emit('load history', sendHistory);
+    //     }
+    //     socket.emit('load image', {
+    //         roomName:socket.roomName,
+    //         image: imageHistory[socket.roomName]
+    //     });
+    // })
+    socket.on('load history',async (data)=>{
+        socket.activeRoom = data.roomName;
+        const chatHistory = await user_service.getHistoryMessage(data);
+        socket.emit('load history', chatHistory);
+    });
+
     //invite other user to this room
     socket.on('invite user', async (data) => {
         let result = await user_service.checkFriend(data.inviteName);
@@ -168,13 +195,13 @@ io.on('connection',  (socket) => {
                 inviteName: data.inviteName
             });
             // success
-            socket.emit('invite result', {
+            socket.emit('request result', {
                 inviteName: data.inviteName
             })
         }
         else {
             // fail
-            socket.emit('invite result', result)
+            socket.emit('request result', result)
         }
     });
 
@@ -234,6 +261,8 @@ io.on('connection',  (socket) => {
             // });
         }
     });
+
+
 
 
     // whiteboard

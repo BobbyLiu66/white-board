@@ -57,7 +57,13 @@ exports.updateRoomUser = (roomName,username) =>{
     mongo_chat.updateRoomUser(roomName,username).catch((err)=>{console.log(err)})
 };
 //TODO save to redis
-exports.saveHistoryMessage = (data)=>{};
+exports.saveHistoryMessage = (data)=>{
+    mongo_chat.updateHistoryMessage(data).catch((err)=>{console.log(err)})
+};
+
+exports.getHistoryMessage = (data)=>{
+    mongo_chat.getHistoryMessage(data).catch((err)=>{console.log(err)})
+};
 //TODO test this method
 exports.findOnlineNum = (roomName) =>{
     let resultObj = {};
