@@ -113,6 +113,36 @@ exports.updateRoomUser = async (roomName, user) => {
     });
 };
 
+
+exports.updateHistoryMessage = async (data) => {
+    let client = await mongo_client;
+    let result = await client.db('weather').collection('chat_hisory').findOne({_id: data.roomName}).catch((err) => {
+        return {errmsg: err}
+    });
+    let messageList = result.message;
+    delete data.roomName;
+    messageList.push(data);
+    await client.db('weather').collection('chat_room').updateOne({_id: roomName}, {
+        $set: {message: messageList},
+        $currentDate: {
+            lastModified: true
+        }
+    }, {'upsert': true}).catch((err) => {
+        return {errmsg: err}
+    });
+};
+
+exports.getHistoryMessage = async (data) => {
+    let client = await mongo_client;
+    return await client.db('weather').collection('chat_hisory').findOne({_id: data.roomName}).catch((err) => {
+        return {errmsg: err}
+    });
+};
+
+
+
+
+//antiquate
 exports.countAcceptedNum = async (roomName) => {
     let client = await mongo_client;
     let userResult = await client.db('weather').collection('chat_room').findOne({_id:roomName});
