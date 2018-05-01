@@ -17,7 +17,7 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-let server = require('../src/socket/chatroom');
+let server = require('../src/socket/chatroom_v2');
 // let server = http.createServer(app);
 
 /**
