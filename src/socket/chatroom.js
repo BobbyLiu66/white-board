@@ -15,7 +15,7 @@ let acceptedNum = {};
 let accept = {};
 let total = {};
 
-io.on('connection',  (socket) => {
+io.on('connection', (socket) => {
     //chat room
     let addedUser = false;
     //TODO antiquate
@@ -23,11 +23,11 @@ io.on('connection',  (socket) => {
         let result = await user_service.checkRoom(data.roomName, data.owner);
         if (result.err) {
             // fail
-            socket.emit('request result', result);
+            //socket.emit('request result', result);
             return
         }
         // success
-        socket.emit('request result');
+        //socket.emit('request result');
         // io.in(socket.roomName).emit('user left', {
         //     username: socket.username,
         //     otherRoom: true
@@ -92,7 +92,7 @@ io.on('connection',  (socket) => {
         }
 
         socket.emit('load image', {
-            roomName:socket.roomName,
+            roomName: socket.roomName,
             image: imageHistory[socket.roomName]
         });
 
@@ -111,12 +111,13 @@ io.on('connection',  (socket) => {
         let result = await user_service.checkUser(username, pwd);
         if (result.err) {
             // fail
-            socket.emit('request result', result);
+            console.log("fail",result);
+            socket.emit('fail result', result);
             return
         }
-        //success
-        socket.emit('request result');
-        //TODO
+        // success
+        socket.emit('success result');
+        // TODO
         socket.username = username;
         socket.roomName = "default";
         socket.join(socket.roomName);
@@ -135,7 +136,7 @@ io.on('connection',  (socket) => {
             socket.emit('load history', sendHistory);
         }
         socket.emit('load image', {
-            roomName:socket.roomName,
+            roomName: socket.roomName,
             image: imageHistory[socket.roomName]
         });
 
@@ -157,29 +158,15 @@ io.on('connection',  (socket) => {
             return
         }
         //success
-        socket.emit('request result',data);
-        socket.username = username;
-        user_service.updateUserStatus(username, "login");
+        socket.emit('request result', data);
+        socket.username = data.nickname;
+        user_service.updateUserStatus(data.nickname, "login");
         //TODO select friend from database
-        socket.emit('load friend list',{
-
-        });
+        socket.emit('load friend list', {});
     });
 
-    // socket.on('load history',(data)=>{
-    //     //load message history
-    //     if (messageHistory.length !== 0) {
-    //         let sendHistory = _.filter(messageHistory, (value) => {
-    //             return value.roomName === socket.roomName
-    //         });
-    //         socket.emit('load history', sendHistory);
-    //     }
-    //     socket.emit('load image', {
-    //         roomName:socket.roomName,
-    //         image: imageHistory[socket.roomName]
-    //     });
-    // })
-    socket.on('load history',async (data)=>{
+
+    socket.on('load history', async (data) => {
         socket.activeRoom = data.roomName;
         const chatHistory = await user_service.getHistoryMessage(data);
         socket.emit('load history', chatHistory);
@@ -195,13 +182,13 @@ io.on('connection',  (socket) => {
                 inviteName: data.inviteName
             });
             // success
-            socket.emit('request result', {
-                inviteName: data.inviteName
-            })
+            // socket.emit('request result', {
+            //     inviteName: data.inviteName
+            // })
         }
         else {
             // fail
-            socket.emit('request result', result)
+            //socket.emit('request result', result)
         }
     });
 
@@ -225,7 +212,7 @@ io.on('connection',  (socket) => {
             socket.emit('load history', sendHistory, socket.roomName);
         }
         socket.emit('load image', {
-            roomName:socket.roomName,
+            roomName: socket.roomName,
             image: imageHistory[socket.roomName]
         })
     });
@@ -263,22 +250,20 @@ io.on('connection',  (socket) => {
     });
 
 
-
-
     // whiteboard
-    socket.on('drawing', (data,image) => {
-        if(socket.roomName !== "default"){
+    socket.on('drawing', (data, image) => {
+        if (socket.roomName !== "default") {
             imageHistory[socket.roomName] = image;
             socket.to(socket.roomName).emit('drawing', data)
         }
         else {
-            socket.emit('drawing',data)
+            socket.emit('drawing', data)
         }
     });
 
     // clear area request
     socket.on('clear area', async () => {
-        if(socket.roomName === "default"){
+        if (socket.roomName === "default") {
             //clear screen
             socket.emit('clear whiteboard screen');
         }
@@ -302,7 +287,7 @@ io.on('connection',  (socket) => {
         if (accept.hasOwnProperty(socket.roomName)) {
             accept[socket.roomName]++;
         }
-        if (total.hasOwnProperty(socket.roomName)){
+        if (total.hasOwnProperty(socket.roomName)) {
             total[socket.roomName]++;
         }
         else {
@@ -313,7 +298,7 @@ io.on('connection',  (socket) => {
         socket.broadcast.to(users[data.sponsor]).emit('accept clear', {
             username: socket.username,
             sponsor: data.sponsor,
-            roomName:socket.roomName
+            roomName: socket.roomName
         });
         if ((acceptedNum[socket.roomName] - 1) / 2 <= accept[socket.roomName]) {
             io.in(socket.roomName).emit('clear success');
@@ -325,7 +310,7 @@ io.on('connection',  (socket) => {
         socket.broadcast.to(users[data.sponsor]).emit('decline clear', {
             username: socket.username,
             sponsor: data.sponsor,
-            roomName:socket.roomName
+            roomName: socket.roomName
         });
         if (total.hasOwnProperty(socket.roomName)) {
             total[socket.roomName]++;
@@ -333,7 +318,7 @@ io.on('connection',  (socket) => {
         else {
             total[socket.roomName]++;
         }
-        if(total[socket.roomName] === acceptedNum[socket.roomName]){
+        if (total[socket.roomName] === acceptedNum[socket.roomName]) {
             io.in(socket.roomName).emit('clear fail');
         }
     });
