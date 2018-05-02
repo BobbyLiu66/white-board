@@ -7,14 +7,9 @@ exports.checkUsername = async (username, password) => {
         return {errmsg: err}
     });
     if (result !== null) {
-        if (result.password === password && result.status === 'logout') {
+        if (result.password === password) {
             return {
                 message: "login success"
-            }
-        }
-        else if (result.password === password && result.status === 'login') {
-            return {
-                errmsg: "This account has already login"
             }
         }
         else {
@@ -134,10 +129,30 @@ exports.updateHistoryMessage = async (data) => {
 
 exports.getHistoryMessage = async (data) => {
     let client = await mongo_client;
-    return await client.db('weather').collection('chat_hisory').findOne({_id: data.roomName}).catch((err) => {
+    return await client.db('weather').collection('chat_history').findOne({_id: data.roomName}).catch((err) => {
         return {errmsg: err}
     });
 };
+
+exports.getRoomList = async (data) => {
+    let client = await mongo_client;
+    return await client.db('weather').collection('chat_user').findOne({_id: data.nickname}).catch((err) => {
+        return {errmsg: err}
+    });
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
