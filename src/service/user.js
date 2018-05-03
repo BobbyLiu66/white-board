@@ -61,8 +61,8 @@ exports.updateRoomUser = (roomName, username) => {
     })
 };
 //TODO implement
-exports.saveHistoryMessage = (data) => {
-    mongo_chat.updateHistoryMessage(data).catch((err) => {
+exports.saveHistoryMessage = async (data) => {
+    await mongo_chat.updateHistoryMessage(data).catch((err) => {
         console.log(err)
     })
 };
@@ -86,17 +86,18 @@ exports.getHistoryMessage = async (data) => {
     return resultObj
 };
 
+/**
+ * {nickname}
+ */
 exports.getFriendList = async (data) => {
-    let resultObj = {roomName: [], message: []};
+    let resultObj = {friendList: [], message: []};
     await mongo_chat.getRoomList(data).then((result) => {
-        if (result.hasOwnProperty('errmsg')) {
+        if (result.errmsg) {
             resultObj.err = result.errmsg
         }
         else {
             if (result.friend) {
-                result.friend.map((value) => {
-                    resultObj.roomName.push(value.roomName)
-                });
+                resultObj.friendList = result.friend
             }
         }
     }, (err) => {
@@ -106,15 +107,18 @@ exports.getFriendList = async (data) => {
     });
     if (!resultObj.err) {
         let obj = {};
-        for (let roomName of resultObj.roomName) {
-            obj.roomName = roomName;
+        for (let friend of resultObj.friendList) {
+            obj.roomName = friend.roomName;
+            obj.nickname = data.nickname;
             await mongo_chat.getHistoryMessage(obj).then((result) => {
-                if (result.errmsg) {
-                    resultObj.err = result.errmsg
-                }
-                else {
-                    if (result.message.length > 0) {
-                        resultObj.message.push({message: result.message[result.message.length - 1], roomName: roomName})
+                if(result !== null){
+                    if (result.errmsg) {
+                        resultObj.err = result.errmsg
+                    }
+                    else {
+                        if (result.message.length > 0) {
+                            resultObj.message.push({message: result.message[result.message.length - 1], roomName: result._id})
+                        }
                     }
                 }
             }, (err) => {
@@ -124,6 +128,23 @@ exports.getFriendList = async (data) => {
             });
         }
     }
+    return resultObj
+};
+
+exports.addFriend = async (data) => {
+    let resultObj = {};
+    await mongo_chat.updateFriend(data).then((result) => {
+        if (result.errmsg) {
+            resultObj.err = result.errmsg
+        }
+        else{
+            resultObj.roomName = result.roomName
+        }
+    }, (err) => {
+        resultObj.err = err;
+    }).catch((err) => {
+        resultObj.err = err;
+    });
     return resultObj
 };
 
