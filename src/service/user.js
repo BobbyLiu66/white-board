@@ -69,7 +69,7 @@ exports.saveHistoryMessage = async (data) => {
 
 exports.getHistoryMessage = async (data) => {
     let resultObj = {};
-    await mongo_chat.getHistoryMessage(data).then((result) => {
+    await mongo_chat.getHistoryMessage(data,true).then((result) => {
         if (result.errmsg) {
             resultObj.err = result.errmsg
         }
@@ -111,13 +111,16 @@ exports.getFriendList = async (data) => {
             obj.roomName = friend.roomName;
             obj.nickname = data.nickname;
             await mongo_chat.getHistoryMessage(obj).then((result) => {
-                if(result !== null){
+                if (result !== null) {
                     if (result.errmsg) {
                         resultObj.err = result.errmsg
                     }
                     else {
                         if (result.message.length > 0) {
-                            resultObj.message.push({message: result.message[result.message.length - 1], roomName: result._id})
+                            resultObj.message.push({
+                                message: result.message[result.message.length - 1],
+                                roomName: result._id
+                            })
                         }
                     }
                 }
@@ -137,7 +140,7 @@ exports.addFriend = async (data) => {
         if (result.errmsg) {
             resultObj.err = result.errmsg
         }
-        else{
+        else {
             resultObj.roomName = result.roomName
         }
     }, (err) => {
