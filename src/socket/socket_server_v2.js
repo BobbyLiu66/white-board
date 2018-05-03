@@ -28,16 +28,19 @@ io.on('connection', (socket) => {
 
     socket.on('FRIEND_LIST', async (data) => {
         const result = await user_service.getFriendList(data);
+        result.friendList.map((friend) => {
+            socket.join(friend.roomName)
+        });
         socket.emit('FRIEND_LIST', result);
     });
 
     socket.on('LOAD_HISTORY', async (data) => {
         const result = await user_service.getHistoryMessage(data);
-        socket.emit('LOAD_HISTORY', result);
+        socket.emit('LOAD_HISTORY', result, data);
     });
 
-    socket.on('NEW_MESSAGE', (data) => {
-        user_service.saveHistoryMessage(data);
+    socket.on('NEW_MESSAGE', async (data) => {
+        let result = await user_service.saveHistoryMessage(data);
         socket.broadcast.to(data.friendName).emit('NEW_MESSAGE', data);
     });
 
@@ -62,8 +65,8 @@ io.on('connection', (socket) => {
             messageContent: "You two have aleady been to friend, start chat here"
         });
         const friendList = await user_service.getFriendList(data);
-        socket.broadcast.to(data.nickname).emit('ADD_FRIEND_SUCCESS', friendList, "broadcast");
-        socket.emit('ADD_FRIEND_SUCCESS', friendList, "emit")
+        socket.broadcast.to(data.nickname).emit('ADD_FRIEND_SUCCESS',friendList);
+        socket.emit('ADD_FRIEND_SUCCESS', friendList)
     });
 
 

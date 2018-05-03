@@ -117,11 +117,12 @@ exports.updateHistoryMessage = async (data) => {
     let result = await client.db('weather').collection('chat_history').findOne({_id: data.roomName}).catch((err) => {
         return {errmsg: err}
     });
-    let messageList = result !== null ? result : [];
+    let messageList = result ? result.message : [];
     messageList.push({
         speaker: data.speaker,
         messageTime: data.messageTime,
-        messageContent: data.messageContent
+        messageContent: data.messageContent,
+        status: false
     });
     await client.db('weather').collection('chat_history').updateOne({_id: data.roomName}, {
         $set: {message: messageList},
@@ -133,11 +134,29 @@ exports.updateHistoryMessage = async (data) => {
     });
 };
 
-exports.getHistoryMessage = async (data) => {
+exports.getHistoryMessage = async (data, options) => {
     let client = await mongo_client;
-    return await client.db('weather').collection('chat_history').findOne({_id: data.roomName}).catch((err) => {
+    const result = await client.db('weather').collection('chat_history').findOne({_id: data.roomName}).catch((err) => {
         return {errmsg: err}
     });
+
+    if (options) {
+        let updateMessage = result;
+        updateMessage.message.map((message) => {
+            message.status = true
+        });
+        await client.db('weather').collection('chat_history').updateOne({_id: data.roomName}, {
+            $set: {message: updateMessage.message},
+            $currentDate: {
+                lastModified: true
+            }
+        }, {'upsert': true}).catch((err) => {
+            return {errmsg: err}
+        });
+    }
+
+    return result
+
 };
 
 exports.getRoomList = async (data) => {
