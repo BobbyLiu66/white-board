@@ -108,8 +108,6 @@ exports.getFriendList = async (data) => {
         let obj = {};
         for (let roomName of resultObj.roomName) {
             obj.roomName = roomName;
-            // resultObj = await exports.getHistoryMessage(obj);
-
             await mongo_chat.getHistoryMessage(obj).then((result) => {
                 if (result.errmsg) {
                     resultObj.err = result.errmsg
