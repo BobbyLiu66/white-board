@@ -18,12 +18,11 @@ let total = {};
 io.on('connection', (socket) => {
     socket.on('USER_LOGIN', async (data) => {
         const result = await user_service.checkUser(data.nickname, data.password);
-
         if (result.err) {
             socket.emit('REQUEST_RESULT', result)
         } else {
             socket.emit('REQUEST_RESULT', data);
-            socket.id = data.nickname
+            socket.join(data.nickname);
         }
     });
 
@@ -45,13 +44,28 @@ io.on('connection', (socket) => {
     //TODO check this
     socket.on('ADD_FRIEND', async (data) => {
         const result = await user_service.checkFriend(data.inviteName);
-        if(result.message){
-            socket.broadcast.to(data.inviteName).emit('ADD_FRIEND', {data});
+        if (result.message) {
+            socket.emit('ADD_FRIEND_RESULT', data);
+            socket.broadcast.to(data.inviteName).emit('ADD_FRIEND_REQUEST', data);
         }
         else {
-            socket.emit('ADD_FRIEND_RESULT',result)
+            socket.emit('ADD_FRIEND_RESULT', result)
         }
     });
+
+    socket.on('ADD_FRIEND_SUCCESS', async (data) => {
+        let result = await user_service.addFriend(data);
+        await user_service.saveHistoryMessage({
+            roomName: result.roomName,
+            speaker: null,
+            messageTime: new Date(),
+            messageContent: "You two have aleady been to friend, start chat here"
+        });
+        const friendList = await user_service.getFriendList(data);
+        socket.broadcast.to(data.nickname).emit('ADD_FRIEND_SUCCESS', friendList, "broadcast");
+        socket.emit('ADD_FRIEND_SUCCESS', friendList, "emit")
+    });
+
 
 });
 
