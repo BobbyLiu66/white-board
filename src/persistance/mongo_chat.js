@@ -111,13 +111,16 @@ exports.updateRoomUser = async (roomName, user) => {
 
 exports.updateHistoryMessage = async (data) => {
     let client = await mongo_client;
-    let result = await client.db('weather').collection('chat_hisory').findOne({_id: data.roomName}).catch((err) => {
+    let result = await client.db('weather').collection('chat_history').findOne({_id: data.roomName}).catch((err) => {
         return {errmsg: err}
     });
     let messageList = result.message;
-    delete data.roomName;
-    messageList.push(data);
-    await client.db('weather').collection('chat_room').updateOne({_id: roomName}, {
+    messageList.push({
+        speaker:data.speaker,
+        messageTime:data.messageTime,
+        messageContent:data.messageContent
+    });
+    await client.db('weather').collection('chat_history').updateOne({_id: data.roomName}, {
         $set: {message: messageList},
         $currentDate: {
             lastModified: true
