@@ -28,9 +28,6 @@ io.on('connection', (socket) => {
 
     socket.on('FRIEND_LIST', async (data) => {
         const result = await user_service.getFriendList(data);
-        result.friendList.map((friend) => {
-            socket.join(friend.roomName)
-        });
         socket.emit('FRIEND_LIST', result);
     });
 
@@ -40,11 +37,15 @@ io.on('connection', (socket) => {
     });
 
     socket.on('NEW_MESSAGE', async (data) => {
-        let result = await user_service.saveHistoryMessage(data);
-        socket.broadcast.to(data.friendName).emit('NEW_MESSAGE', data);
+        const result = await user_service.saveHistoryMessage(data);
+        const nickname = result.member.filter((name)=>{
+            return name !== data.speaker
+        });
+        //TODO send to
+        console.log(socket.rooms);
+        socket.broadcast.to(nickname[0]).emit('NEW_MESSAGE', data);
     });
 
-    //TODO check this
     socket.on('ADD_FRIEND', async (data) => {
         const result = await user_service.checkFriend(data.inviteName);
         if (result.message) {
@@ -63,11 +64,15 @@ io.on('connection', (socket) => {
             speaker: null,
             messageTime: new Date(),
             messageContent: "You two have aleady been to friend, start chat here"
-        });
+        }, [data.nickname, data.inviteName]);
         const friendList = await user_service.getFriendList(data);
-        socket.broadcast.to(data.nickname).emit('ADD_FRIEND_SUCCESS',friendList);
+        socket.broadcast.to(data.nickname).emit('ADD_FRIEND_SUCCESS', friendList);
         socket.emit('ADD_FRIEND_SUCCESS', friendList)
     });
+
+    socket.on('RECONNECT',(data)=>{
+        socket.join(data.nickname);
+    })
 
 
 });
