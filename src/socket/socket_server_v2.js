@@ -7,21 +7,18 @@ let user_service = require('../service/user');
 
 io.on('connection', (socket) => {
     socket.on('USER_LOGIN', async (data) => {
+        //TODO limit submit time
         const result = await user_service.checkUser(data.nickname, data.password);
         if (result.err) {
             socket.emit('REQUEST_RESULT', result)
         } else {
-            socket.emit('REQUEST_RESULT', data);
             socket.join(data.nickname);
+            socket.emit('REQUEST_RESULT', data);
         }
     });
 
-    socket.on('CHECK_NICKNAME', async (data) => {
-        const result = await user_service.validateNickname(data.nickname);
-        socket.emit('CHECK_NICKNAME', result)
-    });
-
     socket.on('FRIEND_LIST', async (data) => {
+        socket.join(data.nickname);
         const result = await user_service.getFriendList(data);
         socket.emit('FRIEND_LIST', result);
     });
@@ -40,6 +37,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('ADD_FRIEND', async (data) => {
+        //TODO limit submit time
         const result = await user_service.checkFriend(data.inviteName);
         if (result.message) {
             socket.emit('ADD_FRIEND_RESULT', data);
@@ -59,8 +57,8 @@ io.on('connection', (socket) => {
             messageContent: "You two have already been to friend, start chat here"
         }, [data.nickname, data.inviteName]);
         const friendList = await user_service.getFriendList(data);
-        socket.broadcast.to(data.nickname).emit('ADD_FRIEND_SUCCESS', friendList);
-        socket.emit('ADD_FRIEND_SUCCESS', friendList)
+        socket.broadcast.to(data.nickname).emit('ADD_FRIEND_SUCCESS', friendList,data.inviteName);
+        socket.emit('ADD_FRIEND_SUCCESS', friendList,data.nickname)
     });
 
     socket.on('RECONNECT', (data) => {
