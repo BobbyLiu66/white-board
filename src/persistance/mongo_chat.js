@@ -112,7 +112,7 @@ exports.updateRoomUser = async (roomName, user) => {
 };
 
 
-exports.updateHistoryMessage = async (data) => {
+exports.updateHistoryMessage = async (data, initUser) => {
     let client = await mongo_client;
     let result = await client.db('weather').collection('chat_history').findOne({_id: data.roomName}).catch((err) => {
         return {errmsg: err}
@@ -124,14 +124,19 @@ exports.updateHistoryMessage = async (data) => {
         messageContent: data.messageContent,
         status: false
     });
+    let setMessage = {message: messageList};
+    if (initUser) {
+        setMessage.member = initUser
+    }
     await client.db('weather').collection('chat_history').updateOne({_id: data.roomName}, {
-        $set: {message: messageList},
+        $set: setMessage,
         $currentDate: {
             lastModified: true
         }
     }, {'upsert': true}).catch((err) => {
         return {errmsg: err}
     });
+    return result
 };
 
 exports.getHistoryMessage = async (data, options) => {
