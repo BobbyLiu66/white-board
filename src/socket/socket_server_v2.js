@@ -1,19 +1,9 @@
 let app = require('../../app');
 let http = require('http');
-let _ = require('lodash');
-
 let server = http.createServer(app);
 const io = require('socket.io')(server);
 
 let user_service = require('../service/user');
-
-let messageHistory = [];
-let imageHistory = {};
-let users = {};
-
-let acceptedNum = {};
-let accept = {};
-let total = {};
 
 io.on('connection', (socket) => {
     socket.on('USER_LOGIN', async (data) => {
@@ -24,6 +14,11 @@ io.on('connection', (socket) => {
             socket.emit('REQUEST_RESULT', data);
             socket.join(data.nickname);
         }
+    });
+
+    socket.on('CHECK_NICKNAME', async (data) => {
+        const result = await user_service.validateNickname(data.nickname);
+        socket.emit('CHECK_NICKNAME', result)
     });
 
     socket.on('FRIEND_LIST', async (data) => {
@@ -38,11 +33,9 @@ io.on('connection', (socket) => {
 
     socket.on('NEW_MESSAGE', async (data) => {
         const result = await user_service.saveHistoryMessage(data);
-        const nickname = result.member.filter((name)=>{
+        const nickname = result.member.filter((name) => {
             return name !== data.speaker
         });
-        //TODO send to
-        console.log(socket.rooms);
         socket.broadcast.to(nickname[0]).emit('NEW_MESSAGE', data);
     });
 
@@ -58,22 +51,21 @@ io.on('connection', (socket) => {
     });
 
     socket.on('ADD_FRIEND_SUCCESS', async (data) => {
-        let result = await user_service.addFriend(data);
+        const result = await user_service.addFriend(data);
         await user_service.saveHistoryMessage({
             roomName: result.roomName,
             speaker: null,
             messageTime: new Date(),
-            messageContent: "You two have aleady been to friend, start chat here"
+            messageContent: "You two have already been to friend, start chat here"
         }, [data.nickname, data.inviteName]);
         const friendList = await user_service.getFriendList(data);
         socket.broadcast.to(data.nickname).emit('ADD_FRIEND_SUCCESS', friendList);
         socket.emit('ADD_FRIEND_SUCCESS', friendList)
     });
 
-    socket.on('RECONNECT',(data)=>{
+    socket.on('RECONNECT', (data) => {
         socket.join(data.nickname);
     })
-
 
 });
 

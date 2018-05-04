@@ -16,6 +16,22 @@ exports.checkUser = (username, password) => {
     })
 };
 
+exports.validateNickname = (nickname) => {
+    let resultObj = {};
+    return mongo_chat.validateNickname(nickname).then((result) => {
+        if (result.errmsg) {
+            resultObj.err = result.errmsg
+        }
+        else {
+            resultObj.message = result.message
+        }
+        return resultObj
+    }, (err) => {
+        resultObj.err = err;
+        return resultObj
+    })
+};
+
 exports.checkRoom = (roomName, username) => {
     let resultObj = {};
     return mongo_chat.checkRoomName(roomName, username).then((result) => {
@@ -119,7 +135,8 @@ exports.getFriendList = async (data) => {
                         if (result.message.length > 0) {
                             resultObj.message.push({
                                 message: result.message[result.message.length - 1],
-                                roomName: result._id
+                                roomName: result._id,
+                                friend:friend.friend
                             })
                         }
                     }

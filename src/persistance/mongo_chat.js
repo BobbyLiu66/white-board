@@ -30,6 +30,19 @@ exports.checkUsername = async (username, password) => {
     });
 };
 
+exports.validateNickname = async (nickname) => {
+    let client = await mongo_client;
+    let result = await client.db('weather').collection('chat_user').findOne({_id: nickname}).catch((err) => {
+        return {errmsg: err}
+    });
+    if (result !== null) {
+        return {errmsg:"nickname has been used"}
+    }
+    else {
+        return {message:"nickname is available"}
+    }
+};
+
 exports.inviteFriend = async (inviteName) => {
     let client = await mongo_client;
     let result = await client.db('weather').collection('chat_user').findOne({_id: inviteName}).catch((err) => {
