@@ -136,6 +136,7 @@ exports.getFriendList = async (data) => {
                             resultObj.message.push({
                                 message: result.message[result.message.length - 1],
                                 roomName: result._id,
+                                friend:friend.friend
                             })
                         }
                     }
