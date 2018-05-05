@@ -76,7 +76,7 @@ exports.updateRoomUser = (roomName, username) => {
         console.log(err)
     })
 };
-//TODO implement
+
 exports.saveHistoryMessage = async (data,initUser) => {
     return await mongo_chat.updateHistoryMessage(data,initUser).catch((err) => {
         console.log(err)
