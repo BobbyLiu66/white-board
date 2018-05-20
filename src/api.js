@@ -7,7 +7,7 @@ exports.getIpInfo = (clientIp)=>{
             url: `http://ip-api.com/json/${clientIp}`,
         }, function (error, response, body) {
             if (error) reject(error);
-            resolve(body);
+            resolve(JSON.parse(body));
         });
     })
 };
