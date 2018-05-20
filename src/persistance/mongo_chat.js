@@ -1,6 +1,7 @@
 const mongo_client = require('../db/mongo_client').mongo_client;
 const _ = require('lodash');
 const uuidv4 = require('uuid/v4');
+const api = require('../api');
 
 
 exports.checkUsername = async (username, password, clientIp) => {
@@ -20,12 +21,13 @@ exports.checkUsername = async (username, password, clientIp) => {
             }
         }
     }
+    const ipInfo = await api.getIpInfo(clientIp);
     return await client.db('weather').collection('chat_user').insertOne({
         _id: username,
         password: password,
         status: 'login',
         friend: [],
-        clientIp: clientIp
+        clientIp: ipInfo
     }).catch((err) => {
         return {errmsg: err}
     });
