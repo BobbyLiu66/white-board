@@ -2,13 +2,14 @@ let app = require('../../app');
 let http = require('http');
 let server = http.createServer(app);
 const io = require('socket.io')(server);
+const requestIp = require('request-ip');
 
 let user_service = require('../service/user');
 
 io.on('connection', (socket) => {
     socket.on('USER_LOGIN', async (data) => {
-        //TODO limit submit time
-        const result = await user_service.checkUser(data.nickname, data.password);
+        const clientIp = requestIp.getClientIp(socket.request);
+        const result = await user_service.checkUser(data.nickname, data.password,clientIp);
         if (result.err) {
             socket.emit('REQUEST_RESULT', result)
         } else {

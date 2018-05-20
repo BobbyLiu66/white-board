@@ -1,8 +1,8 @@
 const mongo_chat = require('../persistance/mongo_chat');
 
-exports.checkUser = (username, password) => {
+exports.checkUser = (username, password, clientIp) => {
     let resultObj = {};
-    return mongo_chat.checkUsername(username, password).then((result) => {
+    return mongo_chat.checkUsername(username, password, clientIp).then((result) => {
         if (result.hasOwnProperty('errmsg')) {
             resultObj.err = result.errmsg
         }
@@ -77,15 +77,15 @@ exports.updateRoomUser = (roomName, username) => {
     })
 };
 
-exports.saveHistoryMessage = async (data,initUser) => {
-    return await mongo_chat.updateHistoryMessage(data,initUser).catch((err) => {
+exports.saveHistoryMessage = async (data, initUser) => {
+    return await mongo_chat.updateHistoryMessage(data, initUser).catch((err) => {
         console.log(err)
     })
 };
 
 exports.getHistoryMessage = async (data) => {
     let resultObj = {};
-    await mongo_chat.getHistoryMessage(data,true).then((result) => {
+    await mongo_chat.getHistoryMessage(data, true).then((result) => {
         if (result.errmsg) {
             resultObj.err = result.errmsg
         }
@@ -136,7 +136,7 @@ exports.getFriendList = async (data) => {
                             resultObj.message.push({
                                 message: result.message[result.message.length - 1],
                                 roomName: result._id,
-                                friend:friend.friend
+                                friend: friend.friend
                             })
                         }
                     }

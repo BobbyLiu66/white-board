@@ -3,7 +3,7 @@ const _ = require('lodash');
 const uuidv4 = require('uuid/v4');
 
 
-exports.checkUsername = async (username, password) => {
+exports.checkUsername = async (username, password, clientIp) => {
     let client = await mongo_client;
     let result = await client.db('weather').collection('chat_user').findOne({_id: username}).catch((err) => {
         return {errmsg: err}
@@ -24,7 +24,8 @@ exports.checkUsername = async (username, password) => {
         _id: username,
         password: password,
         status: 'login',
-        friend: []
+        friend: [],
+        clientIp: clientIp
     }).catch((err) => {
         return {errmsg: err}
     });
