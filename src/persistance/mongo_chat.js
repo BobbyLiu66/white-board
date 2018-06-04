@@ -98,6 +98,7 @@ exports.updateUserStatus = async (username, status) => {
     });
 };
 
+
 exports.updateRoomUser = async (roomName, user) => {
     let client = await mongo_client;
     let result = await client.db('weather').collection('chat_room').findOne({_id: roomName}).catch((err) => {
@@ -168,13 +169,13 @@ exports.getHistoryMessage = async (data, options) => {
 
 };
 
-exports.getRoomList = async (data) => {
+exports.getUserInformation = async (data) => {
     let client = await mongo_client;
     return await client.db('weather').collection('chat_user').findOne({_id: data.nickname}).catch((err) => {
         return {errmsg: err}
     });
 };
-//TODO test this
+
 exports.updateFriend = async (data) => {
     let client = await mongo_client;
     let nickname = data.nickname;
@@ -202,29 +203,45 @@ exports.updateFriend = async (data) => {
     return obj
 };
 
-
-//antiquate
-exports.countAcceptedNum = async (roomName) => {
+exports.updateNewFriend = async (data) => {
     let client = await mongo_client;
-    let userResult = await client.db('weather').collection('chat_room').findOne({_id: roomName});
-    //TODO add default user info to db
-    let users = userResult.participants;
-    users.push(userResult.owner);
-    let onlineNum = [];
-    for (let user of users) {
-        let res = await client.db('weather').collection('chat_user').findOne({
-            _id: user,
-            status: "login"
-        }).catch((err) => {
-            return {errmsg: err}
-        });
-        if (res !== null) {
-            onlineNum.push(res)
+    let nickname = data.nickname;
+    let inviteName = data.inviteName;
+    let obj = {};
+    let result = await client.db('weather').collection('chat_user').findOne({_id: nickname}).catch((err) => {
+        obj.errmsg = err
+    });
+    let friend = result.newFriend || [];
+    friend.push({friend: inviteName,message:data.messageTime,state:"PENDING"});
+    await client.db('weather').collection('chat_user').updateOne({_id: nickname}, {
+        $set: {newFriend: friend},
+        $currentDate: {
+            lastModified: true
         }
-    }
-    return {
-        message: onlineNum.length
-    };
+    }, {'upsert': true}).catch((err) => {
+        obj.errmsg = err
+    });
+};
+
+exports.updateNewFriendState = async (data) => {
+    let client = await mongo_client;
+    //TODO
+    let result = await client.db('weather').collection('chat_user').findOne({_id: data.nickname}).catch((err) => {
+        obj.errmsg = err
+    });
+    result.newFriend.forEach((list)=>{
+        if(list.friend === data.inviteName){
+            list.friend.state = "PASS"
+        }
+    });
+    await client.db('weather').collection('chat_user').updateOne({_id: data.nickname}, {
+        $set: {newFriend: result.newFriend},
+        $currentDate: {
+            lastModified: true
+        }
+    }, {'upsert': true}).catch((err) => {
+        return err
+    });
 };
 
 

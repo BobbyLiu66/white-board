@@ -10,6 +10,7 @@ io.on('connection', (socket) => {
     socket.on('USER_LOGIN', async (data) => {
         const clientIp = requestIp.getClientIp(socket.request);
         const result = await user_service.checkUser(data.nickname, data.password,clientIp);
+
         if (result.err) {
             socket.emit('REQUEST_RESULT', result)
         } else {
@@ -22,6 +23,12 @@ io.on('connection', (socket) => {
         socket.join(data.nickname);
         const result = await user_service.getFriendList(data);
         socket.emit('FRIEND_LIST', result);
+    });
+
+    socket.on('NEW_FRIEND_LIST', async (data) => {
+        //TODO load new friend list
+        const result = await user_service.getNewFriendList(data);
+        socket.emit('NEW_FRIEND_LIST', result);
     });
 
     socket.on('LOAD_HISTORY', async (data) => {
@@ -38,11 +45,13 @@ io.on('connection', (socket) => {
     });
 
     socket.on('ADD_FRIEND', async (data) => {
-        //TODO limit submit time
         const result = await user_service.checkFriend(data.inviteName);
         if (result.message) {
             socket.emit('ADD_FRIEND_RESULT', data);
-            socket.broadcast.to(data.inviteName).emit('ADD_FRIEND_REQUEST', data);
+            //TODO save to the new friend list
+            const res = await user_service.addNewFriend(data);
+            if(!res.err)
+                socket.broadcast.to(data.inviteName).emit('ADD_FRIEND_REQUEST', data);
         }
         else {
             socket.emit('ADD_FRIEND_RESULT', result)
@@ -50,6 +59,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('ADD_FRIEND_SUCCESS', async (data) => {
+        //TODO update the state of new friend as well
+        await user_service.updateNewFriendState(data);
         const result = await user_service.addFriend(data);
         await user_service.saveHistoryMessage({
             roomName: result.roomName,

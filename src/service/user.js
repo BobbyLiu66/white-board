@@ -71,6 +71,12 @@ exports.updateUserStatus = (username, status) => {
     })
 };
 
+exports.updateNewFriendState = (data) => {
+    mongo_chat.updateNewFriendState(data).catch((err) => {
+        console.log(err)
+    })
+};
+
 exports.updateRoomUser = (roomName, username) => {
     mongo_chat.updateRoomUser(roomName, username).catch((err) => {
         console.log(err)
@@ -107,7 +113,7 @@ exports.getHistoryMessage = async (data) => {
  */
 exports.getFriendList = async (data) => {
     let resultObj = {friendList: [], message: []};
-    await mongo_chat.getRoomList(data).then((result) => {
+    await mongo_chat.getUserInformation(data).then((result) => {
         if (result.errmsg) {
             resultObj.err = result.errmsg
         }
@@ -151,6 +157,24 @@ exports.getFriendList = async (data) => {
     return resultObj
 };
 
+exports.getNewFriendList = async (data)=>{
+    let resultObj = {newFriendList: []};
+    await mongo_chat.getUserInformation(data).then((result) => {
+        if (result.errmsg) {
+            resultObj.err = result.errmsg
+        }
+        else {
+            if (result.newFriend) {
+                resultObj.newFriendList = result.newFriend
+            }
+        }
+    }, (err) => {
+        resultObj.err = err;
+    }).catch((err) => {
+        resultObj.err = err;
+    });
+};
+
 exports.addFriend = async (data) => {
     let resultObj = {};
     await mongo_chat.updateFriend(data).then((result) => {
@@ -168,20 +192,19 @@ exports.addFriend = async (data) => {
     return resultObj
 };
 
-
-//TODO feiqi
-exports.findOnlineNum = (roomName) => {
+exports.addNewFriend = async (data) => {
     let resultObj = {};
-    return mongo_chat.countAcceptedNum(roomName).then((result) => {
-        if (result.hasOwnProperty('errmsg')) {
+    await mongo_chat.updateNewFriend(data).then((result) => {
+        if (result.errmsg) {
             resultObj.err = result.errmsg
         }
-        else {
-            resultObj.message = result.message
-        }
-        return resultObj
     }, (err) => {
         resultObj.err = err;
-        return resultObj
-    })
+    }).catch((err) => {
+        resultObj.err = err;
+    });
+    return resultObj
 };
+
+
+
