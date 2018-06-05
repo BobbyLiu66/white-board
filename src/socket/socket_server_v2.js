@@ -63,7 +63,7 @@ io.on('connection', (socket) => {
             roomName: result.roomName,
             speaker: null,
             messageTime: new Date(),
-            messageContent: "You two have already been to friend, start chat here"
+            messageContent: "You two have already been to friend"
         }, [data.nickname, data.inviteName]);
         const friendList = await user_service.getFriendList(data);
         socket.broadcast.to(data.nickname).emit('ADD_FRIEND_SUCCESS', friendList,data.inviteName);

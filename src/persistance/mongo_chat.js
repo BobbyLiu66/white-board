@@ -2,7 +2,7 @@ const mongo_client = require('../db/mongo_client').mongo_client;
 const _ = require('lodash');
 const uuidv4 = require('uuid/v4');
 const api = require('../api');
-
+const {LOGINSUCCESS,LOGINFAIL,INVITESUCCESS,INVITEFAIL,BEENFRIENDSTATE} = require("../constant");
 
 exports.checkUsername = async (username, password, clientIp) => {
     let client = await mongo_client;
@@ -12,12 +12,12 @@ exports.checkUsername = async (username, password, clientIp) => {
     if (result !== null) {
         if (result.password === password) {
             return {
-                message: "login success"
+                message: LOGINSUCCESS
             }
         }
         else {
             return {
-                errmsg: "nickname or password is wrong"
+                errmsg: LOGINFAIL
             }
         }
     }
@@ -42,59 +42,58 @@ exports.inviteFriend = async (data) => {
         return object
     });
     if (result !== null) {
-        //TODO check if this man has already in the friend list
         let res = await client.db('weather').collection('chat_user').findOne({_id: data.nickname}).catch((err) => {
             object.errmsg = err;
             return object
         });
         res.friend.forEach((list)=>{
             if(list.friend === data.inviteName){
-                object.errmsg = "Already been your friend"
+                object.errmsg = INVITEEXIST
             }
         });
-        object.errmsg ? object.message = "Invite Success": "";
+        object.errmsg ? object.message = INVITESUCCESS: "";
         return object
     }
     else {
-        object.errmsg = 'Nick name did not exist';
+        object.errmsg = INVITEFAIL;
         return object
     }
 };
 
-exports.checkRoomName = async (roomName, username) => {
-    let client = await mongo_client;
-    let date = await client.db('weather').collection('chat_room').findOne({_id: roomName}).catch((err) => {
-        return {errmsg: err}
-    });
-    if (date !== null) {
-        if (date.participants.includes(username) || date.owner === username) {
-            return {
-                message: 'Join this room success',
-                status: 'Join'
-            }
-        }
-        else {
-            return {
-                errmsg: 'no authority to participant into this room'
-            }
-        }
-    }
-    else {
-        await client.db('weather').collection('chat_room').insertOne({
-            _id: roomName,
-            owner: username,
-            participants: []
-        }).catch((err) => {
-            return {
-                errmsg: err
-            }
-        });
-        return {
-            message: 'Create room success',
-            status: 'Create'
-        }
-    }
-};
+// exports.checkRoomName = async (roomName, username) => {
+//     let client = await mongo_client;
+//     let date = await client.db('weather').collection('chat_room').findOne({_id: roomName}).catch((err) => {
+//         return {errmsg: err}
+//     });
+//     if (date !== null) {
+//         if (date.participants.includes(username) || date.owner === username) {
+//             return {
+//                 message: 'Join this room success',
+//                 status: 'Join'
+//             }
+//         }
+//         else {
+//             return {
+//                 errmsg: 'no authority to participant into this room'
+//             }
+//         }
+//     }
+//     else {
+//         await client.db('weather').collection('chat_room').insertOne({
+//             _id: roomName,
+//             owner: username,
+//             participants: []
+//         }).catch((err) => {
+//             return {
+//                 errmsg: err
+//             }
+//         });
+//         return {
+//             message: 'Create room success',
+//             status: 'Create'
+//         }
+//     }
+// };
 
 exports.updateUserStatus = async (username, status) => {
     let client = await mongo_client;
@@ -235,13 +234,12 @@ exports.updateNewFriend = async (data) => {
 
 exports.updateNewFriendState = async (data) => {
     let client = await mongo_client;
-    //TODO
     let result = await client.db('weather').collection('chat_user').findOne({_id: data.nickname}).catch((err) => {
         obj.errmsg = err
     });
     result.newFriend.forEach((list)=>{
         if(list.nickname === data.inviteName){
-            list.state = "PASS"
+            list.state = BEENFRIENDSTATE
         }
     });
     await client.db('weather').collection('chat_user').updateOne({_id: data.nickname}, {

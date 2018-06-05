@@ -1,9 +1,9 @@
 const bunyan = require('bunyan');
 let log = bunyan.createLogger({name: 'config'});
 let projectName = {
-    "formal": "white-board_service",
-    "test": "white-board_service",
-    "dev": "white-board_service"
+    "formal": "chat_room_service",
+    "test": "chat_room_service",
+    "dev": "chat_room_service"
 };
 
 function chooseEnv(model) {
