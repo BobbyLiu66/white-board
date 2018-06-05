@@ -34,20 +34,30 @@ exports.checkUsername = async (username, password, clientIp) => {
 };
 
 
-exports.inviteFriend = async (inviteName) => {
+exports.inviteFriend = async (data) => {
+    const object = {};
     let client = await mongo_client;
-    let result = await client.db('weather').collection('chat_user').findOne({_id: inviteName}).catch((err) => {
-        return {errmsg: err}
+    let result = await client.db('weather').collection('chat_user').findOne({_id: data.inviteName}).catch((err) => {
+        object.errmsg = err;
+        return object
     });
     if (result !== null) {
-        return {
-            message: 'invite success'
-        }
+        //TODO check if this man has already in the friend list
+        let res = await client.db('weather').collection('chat_user').findOne({_id: data.nickname}).catch((err) => {
+            object.errmsg = err;
+            return object
+        });
+        res.friend.forEach((list)=>{
+            if(list.friend === data.inviteName){
+                object.errmsg = "Already been your friend"
+            }
+        });
+        object.errmsg ? object.message = "Invite Success": "";
+        return object
     }
     else {
-        return {
-            errmsg: 'Nick name did not exist'
-        }
+        object.errmsg = 'Nick name did not exist';
+        return object
     }
 };
 

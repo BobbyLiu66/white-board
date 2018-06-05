@@ -44,10 +44,9 @@ io.on('connection', (socket) => {
     });
 
     socket.on('ADD_FRIEND', async (data) => {
-        const result = await user_service.checkFriend(data.inviteName);
+        const result = await user_service.checkFriend(data);
         if (result.message) {
             socket.emit('ADD_FRIEND_RESULT', data);
-            //TODO save to the new friend list
             const res = await user_service.addNewFriend(data);
             if(!res.err)
                 socket.broadcast.to(data.inviteName).emit('ADD_FRIEND_REQUEST', data);
@@ -58,7 +57,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('ADD_FRIEND_SUCCESS', async (data) => {
-        //TODO update the state of new friend as well
         await user_service.updateNewFriendState(data);
         const result = await user_service.addFriend(data);
         await user_service.saveHistoryMessage({
