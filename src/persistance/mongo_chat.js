@@ -208,12 +208,12 @@ exports.updateNewFriend = async (data) => {
     let nickname = data.nickname;
     let inviteName = data.inviteName;
     let obj = {};
-    let result = await client.db('weather').collection('chat_user').findOne({_id: nickname}).catch((err) => {
+    let result = await client.db('weather').collection('chat_user').findOne({_id: inviteName}).catch((err) => {
         obj.errmsg = err
     });
     let friend = result.newFriend || [];
-    friend.push({friend: inviteName,message:data.messageTime,state:"PENDING"});
-    await client.db('weather').collection('chat_user').updateOne({_id: nickname}, {
+    friend.push({nickname: nickname,messageTime:data.messageTime,state:"PENDING"});
+    await client.db('weather').collection('chat_user').updateOne({_id: inviteName}, {
         $set: {newFriend: friend},
         $currentDate: {
             lastModified: true
@@ -230,8 +230,8 @@ exports.updateNewFriendState = async (data) => {
         obj.errmsg = err
     });
     result.newFriend.forEach((list)=>{
-        if(list.friend === data.inviteName){
-            list.friend.state = "PASS"
+        if(list.nickname === data.inviteName){
+            list.state = "PASS"
         }
     });
     await client.db('weather').collection('chat_user').updateOne({_id: data.nickname}, {

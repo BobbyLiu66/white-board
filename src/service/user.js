@@ -173,6 +173,7 @@ exports.getNewFriendList = async (data)=>{
     }).catch((err) => {
         resultObj.err = err;
     });
+    return resultObj
 };
 
 exports.addFriend = async (data) => {

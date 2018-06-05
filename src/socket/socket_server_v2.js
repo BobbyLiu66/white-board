@@ -26,9 +26,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('NEW_FRIEND_LIST', async (data) => {
-        //TODO load new friend list
         const result = await user_service.getNewFriendList(data);
-        socket.emit('NEW_FRIEND_LIST', result);
+        socket.emit('LOAD_FRIEND_LIST', result);
     });
 
     socket.on('LOAD_HISTORY', async (data) => {
