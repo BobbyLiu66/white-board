@@ -1,6 +1,11 @@
 let app = require('../../app');
-let http = require('http');
-let server = http.createServer(app);
+let https = require('https');
+const fs = require('fs');
+let sslOptions = {
+    key: fs.readFileSync('../src/ssl/1530221692674.key'),
+    cert: fs.readFileSync('../src/ssl/public.pem')
+};
+let server = https.createServer(sslOptions,app);
 const io = require('socket.io')(server);
 const requestIp = require('request-ip');
 
