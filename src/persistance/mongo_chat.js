@@ -27,6 +27,7 @@ exports.checkUsername = async (username, password, clientIp) => {
         password: password,
         status: 'login',
         friend: [],
+        newFriend:[],
         clientIp: ipInfo
     }).catch((err) => {
         return {errmsg: err}
@@ -230,15 +231,15 @@ exports.updateNewFriend = async (data) => {
 
 exports.updateNewFriendState = async (data) => {
     let client = await mongo_client;
-    let result = await client.db('weather').collection('chat_user').findOne({_id: data.nickname}).catch((err) => {
+    let result = await client.db('weather').collection('chat_user').findOne({_id: data.inviteName}).catch((err) => {
         obj.errmsg = err
     });
     result.newFriend.forEach((list)=>{
-        if(list.nickname === data.inviteName){
+        if(list.nickname === data.nickname){
             list.state = BEENFRIENDSTATE
         }
     });
-    await client.db('weather').collection('chat_user').updateOne({_id: data.nickname}, {
+    await client.db('weather').collection('chat_user').updateOne({_id: data.inviteName}, {
         $set: {newFriend: result.newFriend},
         $currentDate: {
             lastModified: true
