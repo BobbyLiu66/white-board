@@ -2,8 +2,8 @@ let app = require('../../app');
 let https = require('https');
 const fs = require('fs');
 let sslOptions = {
-    key: fs.readFileSync('./src/ssl/1530221692674.key'),
-    cert: fs.readFileSync('./src/ssl/public.pem')
+    key: fs.readFileSync('../src/ssl/1530221692674.key'),
+    cert: fs.readFileSync('../src/ssl/public.pem')
 };
 let server = https.createServer(sslOptions,app);
 const io = require('socket.io')(server);

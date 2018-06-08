@@ -2,7 +2,7 @@ const mongo_client = require('../db/mongo_client').mongo_client;
 const _ = require('lodash');
 const uuidv4 = require('uuid/v4');
 const api = require('../api');
-const {LOGINSUCCESS,LOGINFAIL,INVITESUCCESS,INVITEFAIL,BEENFRIENDSTATE} = require("../constant");
+const {LOGINSUCCESS,LOGINFAIL,INVITESUCCESS,INVITEFAIL,BEENFRIENDSTATE,INVITEEXIST} = require("../constant");
 
 exports.checkUsername = async (username, password, clientIp) => {
     let client = await mongo_client;
@@ -42,16 +42,12 @@ exports.inviteFriend = async (data) => {
         return object
     });
     if (result !== null) {
-        let res = await client.db('weather').collection('chat_user').findOne({_id: data.nickname}).catch((err) => {
-            object.errmsg = err;
-            return object
-        });
-        res.friend.forEach((list)=>{
-            if(list.friend === data.inviteName){
+        result.newFriend.forEach((list)=>{
+            if(list.nickname === data.nickname){
                 object.errmsg = INVITEEXIST
             }
         });
-        object.errmsg ? object.message = INVITESUCCESS: "";
+        !object.errmsg ? object.message = INVITESUCCESS: "";
         return object
     }
     else {

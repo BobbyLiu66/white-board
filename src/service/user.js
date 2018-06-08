@@ -179,15 +179,7 @@ exports.addFriend = async (data) => {
 
 exports.addNewFriend = async (data) => {
     let resultObj = {};
-    await mongo_chat.updateNewFriend(data).then((result) => {
-        if (result.errmsg) {
-            resultObj.err = result.errmsg
-        }
-    }, (err) => {
-        resultObj.err = err;
-    }).catch((err) => {
-        resultObj.err = err;
-    });
+    await mongo_chat.updateNewFriend(data);
     return resultObj
 };
 
