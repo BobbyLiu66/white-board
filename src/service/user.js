@@ -16,23 +16,6 @@ exports.checkUser = (username, password, clientIp) => {
     })
 };
 
-// exports.checkRoom = (roomName, username) => {
-//     let resultObj = {};
-//     return mongo_chat.checkRoomName(roomName, username).then((result) => {
-//         if (result.hasOwnProperty('errmsg')) {
-//             resultObj.err = result.errmsg
-//         }
-//         else {
-//             resultObj.message = result.message;
-//             resultObj.status = result.status
-//         }
-//         return resultObj
-//     }, (err) => {
-//         resultObj.err = err;
-//         return resultObj
-//     })
-// };
-
 exports.checkFriend = (inviteName) => {
     let resultObj = {};
     return mongo_chat.inviteFriend(inviteName).then((result) => {

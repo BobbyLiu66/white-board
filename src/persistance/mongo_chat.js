@@ -1,5 +1,4 @@
 const mongo_client = require('../db/mongo_client').mongo_client;
-const _ = require('lodash');
 const uuidv4 = require('uuid/v4');
 const api = require('../api');
 const {LOGINSUCCESS,LOGINFAIL,INVITESUCCESS,INVITEFAIL,BEENFRIENDSTATE,INVITEEXIST} = require("../constant");
@@ -56,41 +55,6 @@ exports.inviteFriend = async (data) => {
         return object
     }
 };
-
-// exports.checkRoomName = async (roomName, username) => {
-//     let client = await mongo_client;
-//     let date = await client.db('weather').collection('chat_room').findOne({_id: roomName}).catch((err) => {
-//         return {errmsg: err}
-//     });
-//     if (date !== null) {
-//         if (date.participants.includes(username) || date.owner === username) {
-//             return {
-//                 message: 'Join this room success',
-//                 status: 'Join'
-//             }
-//         }
-//         else {
-//             return {
-//                 errmsg: 'no authority to participant into this room'
-//             }
-//         }
-//     }
-//     else {
-//         await client.db('weather').collection('chat_room').insertOne({
-//             _id: roomName,
-//             owner: username,
-//             participants: []
-//         }).catch((err) => {
-//             return {
-//                 errmsg: err
-//             }
-//         });
-//         return {
-//             message: 'Create room success',
-//             status: 'Create'
-//         }
-//     }
-// };
 
 exports.updateUserStatus = async (username, status) => {
     let client = await mongo_client;
