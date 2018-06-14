@@ -7,7 +7,7 @@ exports.checkUser = (username, password, clientIp) => {
             resultObj.err = result.errmsg
         }
         else {
-            resultObj.message = result.message
+            resultObj = result
         }
         return resultObj
     }, (err) => {
@@ -19,6 +19,23 @@ exports.checkUser = (username, password, clientIp) => {
 exports.checkFriend = (inviteName) => {
     let resultObj = {};
     return mongo_chat.inviteFriend(inviteName).then((result) => {
+        if (result.hasOwnProperty('errmsg')) {
+            resultObj.err = result.errmsg
+        }
+        else {
+            resultObj.message = result.message
+        }
+        return resultObj
+    }, (err) => {
+        resultObj.err = err;
+        return resultObj
+    })
+};
+
+
+exports.getAvatar = (data) => {
+    let resultObj = {};
+    return mongo_chat.getAvatar(data).then((result) => {
         if (result.hasOwnProperty('errmsg')) {
             resultObj.err = result.errmsg
         }
@@ -46,6 +63,12 @@ exports.updateNewFriendState = (data) => {
 
 exports.updateRoomUser = (roomName, username) => {
     mongo_chat.updateRoomUser(roomName, username).catch((err) => {
+        console.log(err)
+    })
+};
+
+exports.updateAvatar = (data) => {
+    mongo_chat.updateAvatar(data).catch((err) => {
         console.log(err)
     })
 };

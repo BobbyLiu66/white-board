@@ -11,7 +11,8 @@ exports.checkUsername = async (username, password, clientIp) => {
     if (result !== null) {
         if (result.password === password) {
             return {
-                message: LOGINSUCCESS
+                message: LOGINSUCCESS,
+                avatar:result.avatar
             }
         }
         else {
@@ -60,6 +61,26 @@ exports.updateUserStatus = async (username, status) => {
     let client = await mongo_client;
     await client.db('weather').collection('chat_user').updateOne({_id: username}, {
         $set: {status: status},
+        $currentDate: {
+            lastModified: true
+        }
+    }, {'upsert': true}).catch((err) => {
+        return err
+    });
+};
+
+exports.getAvatar = async (data) => {
+    const client = await mongo_client;
+    const result = await client.db('weather').collection('chat_user').findOne({_id: data.nickname}).catch((err) => {
+        return {errmsg: err}
+    });
+    return {avatar:result.avatar}
+};
+
+exports.updateAvatar = async (data) => {
+    let client = await mongo_client;
+    await client.db('weather').collection('chat_user').updateOne({_id: data.nickname}, {
+        $set: {avatar: data.avatar},
         $currentDate: {
             lastModified: true
         }

@@ -20,6 +20,7 @@ io.on('connection', (socket) => {
             socket.emit('REQUEST_RESULT', result)
         } else {
             socket.join(data.nickname);
+            data.avatar = result.avatar;
             socket.emit('REQUEST_RESULT', data);
         }
     });
@@ -73,6 +74,10 @@ io.on('connection', (socket) => {
         const friendList = await user_service.getFriendList(data);
         socket.broadcast.to(data.nickname).emit('ADD_FRIEND_SUCCESS', friendList,data.inviteName);
         socket.emit('ADD_FRIEND_SUCCESS', friendList,data.nickname)
+    });
+
+    socket.on('AVATAR',async (data)=>{
+        await user_service.updateAvatar(data)
     });
 
     socket.on('RECONNECT', (data) => {
