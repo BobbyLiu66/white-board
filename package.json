@@ -6,6 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "aws-sdk": "^2.258.1",
     "bunyan": "^1.8.12",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",

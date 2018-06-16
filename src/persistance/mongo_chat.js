@@ -77,17 +77,6 @@ exports.getAvatar = async (data) => {
     return {avatar:result.avatar}
 };
 
-exports.updateAvatar = async (data) => {
-    let client = await mongo_client;
-    await client.db('weather').collection('chat_user').updateOne({_id: data.nickname}, {
-        $set: {avatar: data.avatar},
-        $currentDate: {
-            lastModified: true
-        }
-    }, {'upsert': true}).catch((err) => {
-        return err
-    });
-};
 
 
 exports.updateRoomUser = async (roomName, user) => {

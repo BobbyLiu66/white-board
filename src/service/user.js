@@ -67,11 +67,6 @@ exports.updateRoomUser = (roomName, username) => {
     })
 };
 
-exports.updateAvatar = (data) => {
-    mongo_chat.updateAvatar(data).catch((err) => {
-        console.log(err)
-    })
-};
 
 exports.saveHistoryMessage = async (data, initUser) => {
     return await mongo_chat.updateHistoryMessage(data, initUser).catch((err) => {
