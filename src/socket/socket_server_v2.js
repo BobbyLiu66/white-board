@@ -2,10 +2,10 @@ let app = require('../../app');
 let https = require('https');
 let http = require('http');
 const fs = require('fs');
-let sslOptions = {
-    key: fs.readFileSync('./src/ssl/1530221692674.key'),
-    cert: fs.readFileSync('./src/ssl/public.pem')
-};
+// let sslOptions = {
+//     key: fs.readFileSync('./src/ssl/1530221692674.key'),
+//     cert: fs.readFileSync('./src/ssl/public.pem')
+// };
 // TODO
 let server = http.createServer(app);
 // let server = https.createServer(sslOptions,app);
@@ -79,8 +79,10 @@ io.on('connection', (socket) => {
         socket.emit('ADD_FRIEND_SUCCESS', friendList,data.nickname)
     });
 
-    socket.on('AVATAR',async (data)=>{
-        s3.uploadPhoto(data);
+    socket.on('AVATAR', (data)=>{
+        s3.uploadPhoto(data).then((result)=>{
+            socket.emit("AVATAR",result)
+        });
     });
 
     socket.on('RECONNECT', (data) => {
