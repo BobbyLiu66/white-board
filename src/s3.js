@@ -6,14 +6,20 @@ const s3 = new AWS.S3({
 });
 
 exports.uploadPhoto = async (data) => {
-    const uploadParams = {Bucket: bucketName, Key: '', Body: '', ACL: 'public-read'};
-    uploadParams.Body = data.photo;
-    uploadParams.Key = `${data.nickname}.png`;
+    const uploadParams = {
+        Bucket: bucketName,
+        Key: `${data.nickname}.png`,
+        Body: new Buffer(data.photo.replace(/^data:image\/\w+;base64,/, ""), 'base64'),
+        ACL: 'public-read',
+        ContentEncoding: 'base64',
+        ContentType: 'image/jpeg'
+    };
+
 
     return new Promise((resolve, reject) => {
         s3.upload(uploadParams, (err, data) => {
-            if (err) reject({err:err});
-            resolve({img:data.Location})
+            if (err) reject({err: err});
+            resolve({img: data.Location})
         })
     })
 };

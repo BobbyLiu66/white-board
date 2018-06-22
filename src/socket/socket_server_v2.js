@@ -88,7 +88,6 @@ io.on('connection', (socket) => {
     socket.on('RECONNECT', (data) => {
         socket.join(data.nickname);
     })
-
 });
 
 module.exports = server;
