@@ -1,6 +1,6 @@
-const bunyan = require('bunyan');
-let log = bunyan.createLogger({name: 'config'});
-let projectName = {
+import bunyan from 'bunyan';
+const log = bunyan.createLogger({name: 'config'});
+const projectName = {
     "formal": "chat_room_service",
     "test": "chat_room_service",
     "dev": "chat_room_service"

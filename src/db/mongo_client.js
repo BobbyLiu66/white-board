@@ -1,6 +1,7 @@
-const mongo_config = require('./mongo_config').mongodb;
-const MongoClient = require('mongodb').MongoClient;
-exports.mongo_client = MongoClient.connect(mongo_config.whiteboard).then(
+import {mongodb} from './mongo_config';
+import {MongoClient} from 'mongodb';
+
+exports.mongo_client = MongoClient.connect(mongodb.whiteboard).then(
     function onFulfilled(db) {
         console.log("MONGO READY");
         return db;

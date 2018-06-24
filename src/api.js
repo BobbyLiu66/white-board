@@ -1,11 +1,11 @@
-const request = require("request");
+import request from "request";
 
-exports.getIpInfo = (clientIp)=>{
-    return new Promise((resolve, reject)=>{
+exports.getIpInfo = (clientIp) => {
+    return new Promise((resolve, reject) => {
         request({
             method: 'GET',
             url: `http://ip-api.com/json/${clientIp}`,
-        }, function (error, response, body) {
+        }, (error, response, body) => {
             if (error) reject(error);
             resolve(JSON.parse(body));
         });

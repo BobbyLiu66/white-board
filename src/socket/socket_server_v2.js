@@ -1,18 +1,15 @@
-let app = require('../../app');
-let https = require('https');
-let http = require('http');
-const fs = require('fs');
-// let sslOptions = {
-//     key: fs.readFileSync('./src/ssl/1530221692674.key'),
-//     cert: fs.readFileSync('./src/ssl/public.pem')
-// };
-// TODO
-let server = http.createServer(app);
-// let server = https.createServer(sslOptions,app);
+import app from '../../app'
+import https from 'https';
+import fs from 'fs';
+import requestIp from 'request-ip';
+import user_service from '../service/user';
+import s3 from '../s3';
+const sslOptions = {
+    key: fs.readFileSync('./src/ssl/1530221692674.key'),
+    cert: fs.readFileSync('./src/ssl/public.pem')
+};
+const server = https.createServer(sslOptions,app);
 const io = require('socket.io')(server);
-const requestIp = require('request-ip');
-let user_service = require('../service/user');
-const s3 = require('../s3');
 
 io.on('connection', (socket) => {
     socket.on('USER_LOGIN', async (data) => {

@@ -1,5 +1,5 @@
-const chooseEnv = require('./config').chooseEnv;
-const CONFIG = require('../../configuration');
+import {chooseEnv} from './config';
+import CONFIG from '../../configuration';
 
 const mongodb = {
     test: CONFIG.MONGODBTEST,

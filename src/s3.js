@@ -8,7 +8,6 @@ const s3 = new AWS.S3({
 
 exports.uploadPhoto = async (data) => {
     const image = await sharp(new Buffer(data.photo.replace(/^data:image\/\w+;base64,/, ""), 'base64')).resize(35, 35).toBuffer();
-
     const uploadParams = {
         Bucket: bucketName,
         Key: `${data.nickname}.png`,
@@ -17,7 +16,6 @@ exports.uploadPhoto = async (data) => {
         ContentEncoding: 'base64',
         ContentType: 'image/jpeg'
     };
-
 
     return new Promise((resolve, reject) => {
         s3.upload(uploadParams, (err, data) => {
