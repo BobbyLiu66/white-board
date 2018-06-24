@@ -3,7 +3,6 @@ import mongo_chat from '../persistance/mongo_chat';
 exports.checkUser = (username, password, clientIp) => {
     let resultObj = {};
     return mongo_chat.checkUsername(username, password, clientIp).then((result) => {
-        //FIXME
         if (Object.prototype.hasOwnProperty.call(result, 'errmsg')) {
             resultObj.err = result.errmsg
         }
@@ -20,7 +19,6 @@ exports.checkUser = (username, password, clientIp) => {
 exports.checkFriend = (inviteName) => {
     const resultObj = {};
     return mongo_chat.inviteFriend(inviteName).then((result) => {
-        //FIXME
         if (Object.prototype.hasOwnProperty.call(result, 'errmsg')) {
             resultObj.err = result.errmsg
         }
@@ -38,7 +36,6 @@ exports.checkFriend = (inviteName) => {
 exports.getAvatar = (data) => {
     let resultObj = {};
     return mongo_chat.getAvatar(data).then((result) => {
-        //FIXME
         if (Object.prototype.hasOwnProperty.call(result, 'errmsg')) {
             resultObj.err = result.errmsg
         }
@@ -121,7 +118,6 @@ exports.getFriendList = async (data) => {
     });
     if (!resultObj.err) {
         let obj = {};
-        //FIXME
         for (let friend of resultObj.friendList) {
             obj.roomName = friend.roomName;
             obj.nickname = data.nickname;
