@@ -1,8 +1,19 @@
-import mongo_chat from '../persistance/mongo_chat';
+import {
+    checkUsername,
+    inviteFriend,
+    getAvatar,
+    updateUserStatus,
+    updateNewFriendStatus,
+    updateNewFriend,
+    updateFriend,
+    updateHistoryMessage,
+    getUserInformation,
+    getHistoryMessage
+} from '../persistance/mongo_chat';
 
-exports.checkUser = (username, password, clientIp) => {
+export const checkUser = ({username, password, clientIp}) => {
     let resultObj = {};
-    return mongo_chat.checkUsername(username, password, clientIp).then((result) => {
+    return checkUsername({username, password, clientIp}).then((result) => {
         if (Object.prototype.hasOwnProperty.call(result, 'errmsg')) {
             resultObj.err = result.errmsg
         }
@@ -16,9 +27,9 @@ exports.checkUser = (username, password, clientIp) => {
     })
 };
 
-exports.checkFriend = (inviteName) => {
+export const checkFriend = ({inviteName}) => {
     const resultObj = {};
-    return mongo_chat.inviteFriend(inviteName).then((result) => {
+    return inviteFriend({inviteName}).then((result) => {
         if (Object.prototype.hasOwnProperty.call(result, 'errmsg')) {
             resultObj.err = result.errmsg
         }
@@ -33,9 +44,9 @@ exports.checkFriend = (inviteName) => {
 };
 
 
-exports.getAvatar = (data) => {
+export const getUserAvatar = (data) => {
     let resultObj = {};
-    return mongo_chat.getAvatar(data).then((result) => {
+    return getAvatar(data).then((result) => {
         if (Object.prototype.hasOwnProperty.call(result, 'errmsg')) {
             resultObj.err = result.errmsg
         }
@@ -49,38 +60,27 @@ exports.getAvatar = (data) => {
     })
 };
 
-exports.updateUserStatus = (username, status) => {
-    mongo_chat.updateUserStatus(username, status).catch((err) => {
-        //TODO
+export const updateUsersStatus = ({username, status}) => {
+    updateUserStatus({username, status}).catch((err) => {
         console.log(err)
     })
 };
 
-exports.updateNewFriendState = (data) => {
-    mongo_chat.updateNewFriendState(data).catch((err) => {
-        //TODO
+export const updateNewFriendsStatus = (data) => {
+    updateNewFriendStatus(data).catch((err) => {
         console.log(err)
     })
 };
 
-exports.updateRoomUser = (roomName, username) => {
-    mongo_chat.updateRoomUser(roomName, username).catch((err) => {
-        //TODO
+export const saveHistoryMessage = async (data) => {
+    return await updateHistoryMessage(data).catch((err) => {
         console.log(err)
     })
 };
 
-
-exports.saveHistoryMessage = async (data, initUser) => {
-    return await mongo_chat.updateHistoryMessage(data, initUser).catch((err) => {
-        //TODO
-        console.log(err)
-    })
-};
-
-exports.getHistoryMessage = async (data) => {
+export const getHistoryList = async (data) => {
     let resultObj = {};
-    await mongo_chat.getHistoryMessage(data, true).then((result) => {
+    await getHistoryMessage(data).then((result) => {
         if (Object.prototype.hasOwnProperty.call(result, 'errmsg')) {
             resultObj.err = result.errmsg
         }
@@ -97,12 +97,10 @@ exports.getHistoryMessage = async (data) => {
     return resultObj
 };
 
-/**
- * {nickname}
- */
-exports.getFriendList = async (data) => {
+
+export const getFriendList = async (data) => {
     let resultObj = {friendList: [], message: []};
-    await mongo_chat.getUserInformation(data).then((result) => {
+    await getUserInformation(data).then((result) => {
         if (Object.prototype.hasOwnProperty.call(result, 'errmsg')) {
             resultObj.err = result.errmsg
         }
@@ -116,12 +114,9 @@ exports.getFriendList = async (data) => {
     }).catch((err) => {
         resultObj.err = err;
     });
-    if (!resultObj.err) {
-        let obj = {};
-        for (let friend of resultObj.friendList) {
-            obj.roomName = friend.roomName;
-            obj.nickname = data.nickname;
-            await mongo_chat.getHistoryMessage(obj).then((result) => {
+    if (!Object.prototype.hasOwnProperty.call(resultObj, 'err')) {
+        for (const friend of resultObj.friendList) {
+            await getHistoryMessage({roomName: friend.roomName}).then((result) => {
                 if (result !== null) {
                     if (Object.prototype.hasOwnProperty.call(result, 'errmsg')) {
                         resultObj.err = result.errmsg
@@ -146,9 +141,9 @@ exports.getFriendList = async (data) => {
     return resultObj
 };
 
-exports.getNewFriendList = async (data)=>{
-    let resultObj = {newFriendList: []};
-    await mongo_chat.getUserInformation(data).then((result) => {
+export const getNewFriendList = async (data) => {
+    const resultObj = {newFriendList: []};
+    await getUserInformation(data).then((result) => {
         if (Object.prototype.hasOwnProperty.call(result, 'errmsg')) {
             resultObj.err = result.errmsg
         }
@@ -165,9 +160,9 @@ exports.getNewFriendList = async (data)=>{
     return resultObj
 };
 
-exports.addFriend = async (data) => {
+export const addFriend = async (data) => {
     let resultObj = {};
-    await mongo_chat.updateFriend(data).then((result) => {
+    await updateFriend(data).then((result) => {
         if (Object.prototype.hasOwnProperty.call(result, 'errmsg')) {
             resultObj.err = result.errmsg
         }
@@ -182,11 +177,9 @@ exports.addFriend = async (data) => {
     return resultObj
 };
 
-//FIXME
-exports.addNewFriend = async (data) => {
-    let resultObj = {};
-    await mongo_chat.updateNewFriend(data);
-    return resultObj
+
+export const addNewFriend = async (data) => {
+    await updateNewFriend(data);
 };
 
 

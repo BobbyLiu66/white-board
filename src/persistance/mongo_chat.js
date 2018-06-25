@@ -1,9 +1,9 @@
-const mongo_client = require('../db/mongo_client').mongo_client;
-const uuidv4 = require('uuid/v4');
-const api = require('../api');
-const {LOGINSUCCESS,LOGINFAIL,INVITESUCCESS,INVITEFAIL,BEENFRIENDSTATE,INVITEEXIST} = require("../constant");
+import {mongo_client} from '../db/mongo_client';
+import uuidv4 from 'uuid/v4';
+import {getIpInfo} from '../api';
+import {LOGINSUCCESS, LOGINFAIL, INVITESUCCESS, INVITEFAIL, BEENFRIENDSTATE, INVITEEXIST} from '../constant';
 
-exports.checkUsername = async (username, password, clientIp) => {
+export const checkUsername = async ({username, password, clientIp}) => {
     let client = await mongo_client;
     let result = await client.db('weather').collection('chat_user').findOne({_id: username}).catch((err) => {
         return {errmsg: err}
@@ -12,7 +12,7 @@ exports.checkUsername = async (username, password, clientIp) => {
         if (result.password === password) {
             return {
                 message: LOGINSUCCESS,
-                avatar:result.avatar
+                avatar: result.avatar
             }
         }
         else {
@@ -21,13 +21,13 @@ exports.checkUsername = async (username, password, clientIp) => {
             }
         }
     }
-    const ipInfo = await api.getIpInfo(clientIp);
+    const ipInfo = await getIpInfo(clientIp);
     return await client.db('weather').collection('chat_user').insertOne({
         _id: username,
         password: password,
         status: 'login',
         friend: [],
-        newFriend:[],
+        newFriend: [],
         clientIp: ipInfo
     }).catch((err) => {
         return {errmsg: err}
@@ -35,7 +35,7 @@ exports.checkUsername = async (username, password, clientIp) => {
 };
 
 
-exports.inviteFriend = async (data) => {
+export const inviteFriend = async ({data}) => {
     const object = {};
     let client = await mongo_client;
     let result = await client.db('weather').collection('chat_user').findOne({_id: data.inviteName}).catch((err) => {
@@ -43,12 +43,12 @@ exports.inviteFriend = async (data) => {
         return object
     });
     if (result !== null) {
-        result.newFriend.forEach((list)=>{
-            if(list.nickname === data.nickname){
+        result.newFriend.map((list) => {
+            if (list.nickname === data.nickname) {
                 object.errmsg = INVITEEXIST
             }
         });
-        !object.errmsg ? object.message = INVITESUCCESS: "";
+        !object.errmsg ? object.message = INVITESUCCESS : "";
         return object
     }
     else {
@@ -57,7 +57,7 @@ exports.inviteFriend = async (data) => {
     }
 };
 
-exports.updateUserStatus = async (username, status) => {
+export const updateUserStatus = async ({username, status}) => {
     let client = await mongo_client;
     await client.db('weather').collection('chat_user').updateOne({_id: username}, {
         $set: {status: status},
@@ -69,44 +69,24 @@ exports.updateUserStatus = async (username, status) => {
     });
 };
 
-exports.getAvatar = async (data) => {
+export const getAvatar = async ({nickname}) => {
     const client = await mongo_client;
-    const result = await client.db('weather').collection('chat_user').findOne({_id: data.nickname}).catch((err) => {
+    const result = await client.db('weather').collection('chat_user').findOne({_id: nickname}).catch((err) => {
         return {errmsg: err}
     });
-    return {avatar:result.avatar}
+    return {avatar: result.avatar}
 };
 
-
-
-exports.updateRoomUser = async (roomName, user) => {
+export const updateHistoryMessage = async ({roomName, speaker, messageTime, messageContent, initUser}) => {
     let client = await mongo_client;
-    let result = await client.db('weather').collection('chat_room').findOne({_id: roomName}).catch((err) => {
+    let result = await client.db('weather').collection('chat_history').findOne({_id: roomName}).catch((err) => {
         return {errmsg: err}
     });
-    let users = result.participants;
-    users.push(user);
-    await client.db('weather').collection('chat_room').updateOne({_id: roomName}, {
-        $set: {participants: users},
-        $currentDate: {
-            lastModified: true
-        }
-    }, {'upsert': true}).catch((err) => {
-        return {errmsg: err}
-    });
-};
-
-
-exports.updateHistoryMessage = async (data, initUser) => {
-    let client = await mongo_client;
-    let result = await client.db('weather').collection('chat_history').findOne({_id: data.roomName}).catch((err) => {
-        return {errmsg: err}
-    });
-    let messageList = result ? result.message : [];
+    let messageList = result ? [...result.message] : [];
     messageList.push({
-        speaker: data.speaker,
-        messageTime: data.messageTime,
-        messageContent: data.messageContent,
+        speaker: speaker,
+        messageTime: messageTime,
+        messageContent: messageContent,
         status: false
     });
     let setMessage = {message: messageList};
@@ -124,9 +104,10 @@ exports.updateHistoryMessage = async (data, initUser) => {
     return result
 };
 
-exports.getHistoryMessage = async (data, options) => {
+
+export const getHistoryMessage = async ({roomName, options=false}) => {
     let client = await mongo_client;
-    const result = await client.db('weather').collection('chat_history').findOne({_id: data.roomName}).catch((err) => {
+    const result = await client.db('weather').collection('chat_history').findOne({_id: roomName}).catch((err) => {
         return {errmsg: err}
     });
 
@@ -135,7 +116,7 @@ exports.getHistoryMessage = async (data, options) => {
         updateMessage.message.map((message) => {
             message.status = true
         });
-        await client.db('weather').collection('chat_history').updateOne({_id: data.roomName}, {
+        await client.db('weather').collection('chat_history').updateOne({_id: roomName}, {
             $set: {message: updateMessage.message},
             $currentDate: {
                 lastModified: true
@@ -144,55 +125,44 @@ exports.getHistoryMessage = async (data, options) => {
             return {errmsg: err}
         });
     }
-
     return result
-
 };
 
-exports.getUserInformation = async (data) => {
+export const getUserInformation = async ({nickname}) => {
     let client = await mongo_client;
-    return await client.db('weather').collection('chat_user').findOne({_id: data.nickname}).catch((err) => {
+    return await client.db('weather').collection('chat_user').findOne({_id: nickname}).catch((err) => {
         return {errmsg: err}
     });
 };
 
-exports.updateFriend = async (data) => {
+export const updateFriend = async ({inviteName, nickname}) => {
     let client = await mongo_client;
-    let nickname = data.nickname;
-    let inviteName = data.inviteName;
-    let roomName = uuidv4();
-    let obj = {};
-    for (let i = 0; i < 2; i++) {
-        let result = await client.db('weather').collection('chat_user').findOne({_id: nickname}).catch((err) => {
-            obj.errmsg = err
-        });
-        let friend = result.friend || [];
-        friend.push({roomName: roomName, friend: inviteName});
-        await client.db('weather').collection('chat_user').updateOne({_id: nickname}, {
-            $set: {friend: friend},
-            $currentDate: {
-                lastModified: true
-            }
-        }, {'upsert': true}).catch((err) => {
-            obj.errmsg = err
-        });
-        nickname = data.inviteName;
-        inviteName = data.nickname
-    }
-    obj.roomName = roomName;
+    const roomName = uuidv4();
+    const obj = {roomName};
+    let result = await client.db('weather').collection('chat_user').findOne({_id: nickname}).catch((err) => {
+        obj.errmsg = err
+    });
+    const friend = [...result.friend] || [];
+    friend.push({roomName: roomName, friend: inviteName});
+    await client.db('weather').collection('chat_user').updateOne({_id: nickname}, {
+        $set: {friend: friend},
+        $currentDate: {
+            lastModified: true
+        }
+    }, {'upsert': true}).catch((err) => {
+        obj.errmsg = err
+    });
     return obj
 };
 
-exports.updateNewFriend = async (data) => {
+export const updateNewFriend = async ({nickname, inviteName, messageTime}) => {
     let client = await mongo_client;
-    let nickname = data.nickname;
-    let inviteName = data.inviteName;
     let obj = {};
-    let result = await client.db('weather').collection('chat_user').findOne({_id: inviteName}).catch((err) => {
+    const result = await client.db('weather').collection('chat_user').findOne({_id: inviteName}).catch((err) => {
         obj.errmsg = err
     });
-    let friend = result.newFriend || [];
-    friend.push({nickname: nickname,messageTime:data.messageTime,state:"PENDING"});
+    const friend = [...result.newFriend] || [];
+    friend.push({nickname: nickname, messageTime: messageTime, state: "PENDING"});
     await client.db('weather').collection('chat_user').updateOne({_id: inviteName}, {
         $set: {newFriend: friend},
         $currentDate: {
@@ -203,17 +173,18 @@ exports.updateNewFriend = async (data) => {
     });
 };
 
-exports.updateNewFriendState = async (data) => {
+export const updateNewFriendStatus = async ({inviteName, nickname}) => {
     let client = await mongo_client;
-    let result = await client.db('weather').collection('chat_user').findOne({_id: data.inviteName}).catch((err) => {
-        obj.errmsg = err
+    const result = await client.db('weather').collection('chat_user').findOne({_id: inviteName}).catch((err) => {
+        return err
     });
-    result.newFriend.forEach((list)=>{
-        if(list.nickname === data.nickname){
-            list.state = BEENFRIENDSTATE
+    result.newFriend.map((friend) => {
+        if (friend.nickname === nickname) {
+            friend.state = BEENFRIENDSTATE
         }
     });
-    await client.db('weather').collection('chat_user').updateOne({_id: data.inviteName}, {
+
+    await client.db('weather').collection('chat_user').updateOne({_id: inviteName}, {
         $set: {newFriend: result.newFriend},
         $currentDate: {
             lastModified: true
@@ -222,5 +193,3 @@ exports.updateNewFriendState = async (data) => {
         return err
     });
 };
-
-

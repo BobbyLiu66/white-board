@@ -1,6 +1,6 @@
 import request from "request";
 
-exports.getIpInfo = (clientIp) => {
+export const getIpInfo = (clientIp) => {
     return new Promise((resolve, reject) => {
         request({
             method: 'GET',

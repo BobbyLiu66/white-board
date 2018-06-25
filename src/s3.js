@@ -1,7 +1,7 @@
-const AWS = require('aws-sdk');
+import {S3} from 'aws-sdk'
 const bucketName = 'chat-picture';
-const sharp = require('sharp');
-const s3 = new AWS.S3({
+import sharp from 'sharp';
+const s3 = new S3({
     apiVersion: '2006-03-01',
     params: {Bucket: bucketName}
 });
