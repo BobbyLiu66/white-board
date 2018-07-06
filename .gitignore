@@ -16,4 +16,5 @@ npm-debug.log
 #configuration file
 configuration.js
 /src/ssl/
+/credentials
 /bin/www
