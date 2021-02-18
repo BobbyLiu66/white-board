@@ -18,7 +18,7 @@
     "jade": "~1.11.0",
     "lodash": "^4.17.10",
     "mongodb": "^3.0.6",
-    "morgan": "~1.9.0",
+    "morgan": "~1.9.1",
     "nodemon": "^1.17.5",
     "request": "^2.86.0",
     "request-ip": "^2.0.2",
