@@ -6,8 +6,10 @@ import {LOGINSUCCESS, LOGINFAIL, INVITESUCCESS, INVITEFAIL, BEENFRIENDSTATE, INV
 export const checkUsername = async ({username, password, clientIp}) => {
     let client = await mongo_client;
     let result = await client.db('weather').collection('chat_user').findOne({_id: username}).catch((err) => {
+        console.log(err)
         return {errmsg: err}
     });
+    console.log("result,", result)
     if (result !== null) {
         if (result.password === password) {
             return {

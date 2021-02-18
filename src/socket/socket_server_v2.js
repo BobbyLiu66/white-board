@@ -1,6 +1,4 @@
 import app from '../../app'
-import https from 'https';
-import fs from 'fs';
 import {getClientIp} from 'request-ip';
 import {
     checkUser,
@@ -15,10 +13,7 @@ import {
 } from '../service/user';
 import s3 from '../s3';
 
-const server = https.createServer({
-    key: fs.readFileSync('./src/ssl/1530221692674.key'),
-    cert: fs.readFileSync('./src/ssl/public.pem')
-}, app);
+const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 
 io.on('connection', (socket) => {
@@ -65,8 +60,7 @@ io.on('connection', (socket) => {
             const res = await addNewFriend(data);
             if (!Object.prototype.hasOwnProperty.call(res, 'err'))
                 socket.broadcast.to(data.inviteName).emit('ADD_FRIEND_REQUEST', data);
-        }
-        else {
+        } else {
             socket.emit('ADD_FRIEND_RESULT', result)
         }
     });

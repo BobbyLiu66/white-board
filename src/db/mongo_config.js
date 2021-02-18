@@ -1,10 +1,9 @@
 import {chooseEnv} from './config';
-import CONFIG from '../../configuration';
 
 const mongodb = {
-    test: CONFIG.MONGODBTEST,
-    formal: CONFIG.MONGODBFORMAL,
-    dev: CONFIG.MONGODBDEV
+    test: 'mongodb://localhost:27017/chat',
+    formal: 'mongodb://localhost:27017/chat',
+    dev: 'mongodb://localhost:27017/chat'
 };
 
 exports.mongodb = chooseEnv(mongodb);
