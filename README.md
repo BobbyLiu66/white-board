@@ -16,19 +16,19 @@ This bug has been solved by instead sending socket every single draw line action
 ### Screen shot about some main function
 
 #### Basic chat room      
-![](http://odfbxgsva.bkt.clouddn.com/chat_basic.gif)
+![](https://github-bobby.s3-ap-southeast-2.amazonaws.com//chat_basic.gif)
     
 #### Clear chat message
-![](http://odfbxgsva.bkt.clouddn.com/clear_chat.gif)    
+![](https://github-bobby.s3-ap-southeast-2.amazonaws.com//clear_chat.gif)    
    
 #### Create Chat Room
-![](http://od6hvn95f.bkt.clouddn.com/create_room.gif)
+![](https://github-bobby.s3-ap-southeast-2.amazonaws.com//create_room.gif)
 
 #### Invite Friend
-![](http://odfbxgsva.bkt.clouddn.com/invite_friend.gif)
+![](https://github-bobby.s3-ap-southeast-2.amazonaws.com//invite_friend.gif)
 
 #### Cooperate Whiteboard And Clear
-![](http://odfbxgsva.bkt.clouddn.com/whiteboard.gif)
+![](https://github-bobby.s3-ap-southeast-2.amazonaws.com//whiteboard.gif)
 
 ### Description
 * #### Chat Room Version 1.0 
